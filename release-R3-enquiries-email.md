@@ -4,6 +4,20 @@
 Let travelers submit enquiries/booking requests and notify staff and the guest.
 
 ## Scope
+- UI: Booking/enquiry flow
+  - Update the existing booking modal UI so it submits real data to:
+    - `POST /api/v1/enquiries`
+  - Validation in UI:
+    - required fields (name/email/phone + package reference)
+    - notes field optional
+    - show inline errors (no silent failures)
+  - UX improvements:
+    - success state shows a reference number (if API returns one)
+    - handle API errors (rate limit / validation messages)
+  - If fixed vs flexible packages are supported:
+    - fixed: show departure selection if provided by API, else show date as “requested date”
+    - flexible: show preferred date picker (even a simple date input)
+
 - Public endpoint:
   - `POST /api/v1/enquiries`
   - Request fields:

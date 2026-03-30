@@ -4,6 +4,15 @@
 Improve conversion from enquiry to confirmation and reduce risk.
 
 ## Scope
+- UI: Trust signals + conversion elements
+  - Payments info page UI (simple, readable layout; no forms)
+  - Share UI on package detail page:
+    - copy-link button
+    - WhatsApp share with prefilled text including package name + URL
+  - “Reviews” area:
+    - if no reviews yet, show “No reviews yet” state (as in your example)
+    - later: connect admin-submitted reviews
+
 - Public payments information page (text-only)
 - Policy routes wired to real content:
   - footer links should point to real policy routes
