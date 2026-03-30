@@ -19,7 +19,8 @@ Replace the current template/local config data source with your Express API for 
       - Gallery grid + lightbox modal
       - Video section (embed URLs)
       - Pricing section:
-        - price “from” and/or show tiers table
+        - price “from”
+        - pricing tiers table (if tiers exist)
       - Tour specs block:
         - duration, max people, min age, tour type
       - Reviews section (placeholder “No reviews yet” until R?; show rating if available)

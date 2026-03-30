@@ -38,7 +38,13 @@ Enable CRUD for packages/adventures in the admin, and expose public listing/deta
     - List/create/edit/delete
     - Editor fields: title/subtitle/description + image + related package relation
   - `/admin/enquiries` (read-only for this release, if backend supports it)
-    - Table view with basic status and internal note input (optional)
+    - Table view with basic status
+    - MVP status lifecycle actions:
+      - `NEW`
+      - `IN_REVIEW`
+      - `CONFIRMED`
+      - `CANCELLED`
+    - Internal note field (optional) and save action
 
 - Admin authentication:
   - Email/password login

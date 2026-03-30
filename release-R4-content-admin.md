@@ -32,10 +32,15 @@ Admin CRUD UI + API for:
 - Testimonials
   - create/edit/delete
   - reorder and show/hide (optional)
-- Promo banner / popup
-  - activate/deactivate
-  - message, link target, CTA label
-  - optional start/end schedule
+ - Promo banner (discount/holiday)
+   - activate/deactivate
+   - message text
+   - CTA label + link target (URL or internal route)
+   - optional schedule start/end dates (auto-show while active)
+   - public display rules:
+     - show as a sticky banner near the top of the page
+     - allow user to dismiss ("don't show again" for this visitor)
+     - persist dismiss state via localStorage/cookie (MVP)
 - Policies content
   - Terms, Privacy, Cancellation
   - route slug mapping to footer links

@@ -12,6 +12,12 @@ Improve conversion from enquiry to confirmation and reduce risk.
   - “Reviews” area:
     - if no reviews yet, show “No reviews yet” state (as in your example)
     - later: connect admin-submitted reviews
+- UI: Policies pages
+  - Public routes for Policies (linked from footer)
+    - Terms
+    - Privacy
+    - Cancellation
+  - Policies content renders as readable HTML/text (from API in later releases)
 
 - Public payments information page (text-only)
 - Policy routes wired to real content:
