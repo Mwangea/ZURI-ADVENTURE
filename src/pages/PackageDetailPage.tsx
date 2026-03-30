@@ -39,6 +39,7 @@ export default function PackageDetailPage() {
         description={description}
         canonicalPath={path}
         ogImage={pkg.image}
+        ogImageAlt={`${pkg.name} — Kenya coast tour`}
         ogType="article"
         jsonLd={jsonLd}
       />

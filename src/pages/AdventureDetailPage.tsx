@@ -26,6 +26,7 @@ export default function AdventureDetailPage() {
         description={description}
         canonicalPath={path}
         ogImage={item.image}
+        ogImageAlt={item.imageAlt}
         ogType="article"
         jsonLd={[
           travelAgencyJsonLd(),

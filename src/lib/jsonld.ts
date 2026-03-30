@@ -1,4 +1,10 @@
-import { faqConfig, footerConfig, siteConfig, type Package, type ZigZagGridItem } from '@/config';
+import {
+  faqConfig,
+  footerConfig,
+  siteConfig,
+  type Package,
+  type ZigZagGridItem,
+} from '@/config';
 import { absoluteUrl } from '@/lib/site';
 
 export function travelAgencyJsonLd(): Record<string, unknown> {
@@ -86,6 +92,36 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]): Recor
       position: i + 1,
       name: item.name,
       item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+export function packageItemListJsonLd(packages: Package[]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Tour packages',
+    numberOfItems: packages.length,
+    itemListElement: packages.map((pkg, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: pkg.name,
+      url: absoluteUrl(`/packages/${pkg.slug}`),
+    })),
+  };
+}
+
+export function adventureItemListJsonLd(items: ZigZagGridItem[]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Coastal adventures',
+    numberOfItems: items.length,
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.title,
+      url: absoluteUrl(`/adventures/${item.id}`),
     })),
   };
 }

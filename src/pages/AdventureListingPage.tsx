@@ -4,7 +4,11 @@ import { Seo } from '@/components/Seo';
 import { zigZagGridConfig, siteConfig } from '@/config';
 import { getAllAdventures } from '@/lib/content-registry';
 import { pageTitle } from '@/lib/site';
-import { breadcrumbJsonLd, travelAgencyJsonLd } from '@/lib/jsonld';
+import {
+  adventureItemListJsonLd,
+  breadcrumbJsonLd,
+  travelAgencyJsonLd,
+} from '@/lib/jsonld';
 
 export default function AdventureListingPage() {
   const items = getAllAdventures();
@@ -22,6 +26,7 @@ export default function AdventureListingPage() {
             { name: 'Home', path: '/' },
             { name: 'Adventures', path: '/adventures' },
           ]),
+          adventureItemListJsonLd(items),
         ]}
       />
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-24 lg:px-12">

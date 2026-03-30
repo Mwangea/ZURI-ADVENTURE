@@ -5,11 +5,14 @@ import { HelmetProvider } from 'react-helmet-async';
 import './index.css';
 import App from './App.tsx';
 import { BookingModalProvider } from '@/components/BookingModalProvider';
+import { routerBasename } from '@/lib/site';
+
+const basename = routerBasename();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <BookingModalProvider>
           <App />
         </BookingModalProvider>

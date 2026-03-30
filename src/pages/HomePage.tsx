@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useLenis from '@/hooks/useLenis';
 import { Seo } from '@/components/Seo';
-import { siteConfig } from '@/config';
+import { heroConfig, siteConfig } from '@/config';
 import Hero from '@/sections/Hero';
 import NarrativeText from '@/sections/NarrativeText';
 import Footer from '@/sections/Footer';
@@ -56,6 +56,8 @@ export default function HomePage() {
         title={pageTitle(siteConfig.siteName)}
         description={siteConfig.siteDescription}
         canonicalPath="/"
+        ogImage={heroConfig.backgroundImage}
+        ogImageAlt={heroConfig.backgroundAlt}
         jsonLd={[travelAgencyJsonLd(), webSiteJsonLd(), faqPageJsonLd()]}
       />
       <a

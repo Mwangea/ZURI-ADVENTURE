@@ -5,7 +5,11 @@ import { Seo } from '@/components/Seo';
 import { packagesConfig, siteConfig } from '@/config';
 import { getAllPackages } from '@/lib/content-registry';
 import { pageTitle } from '@/lib/site';
-import { breadcrumbJsonLd, travelAgencyJsonLd } from '@/lib/jsonld';
+import {
+  breadcrumbJsonLd,
+  packageItemListJsonLd,
+  travelAgencyJsonLd,
+} from '@/lib/jsonld';
 
 const iconMap: Record<string, typeof Star> = {
   star: Star,
@@ -30,6 +34,7 @@ export default function PackageListingPage() {
             { name: 'Home', path: '/' },
             { name: 'Packages', path: '/packages' },
           ]),
+          packageItemListJsonLd(packages),
         ]}
       />
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-24 lg:px-12">
