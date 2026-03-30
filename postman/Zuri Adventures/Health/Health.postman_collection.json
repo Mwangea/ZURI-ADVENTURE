@@ -1,0 +1,33 @@
+{
+  "info": {
+    "name": "Zuri Adventures - Health",
+    "_postman_id": "0f3f7d05-e67a-4dc2-b85b-0c462a8201e8",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "GET /health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1"]
+        }
+      }
+    }
+  ]
+}
+
