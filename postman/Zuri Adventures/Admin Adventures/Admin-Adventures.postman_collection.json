@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "Zuri Adventures - Admin Adventures",
+    "_postman_id": "ec205289-b112-4d92-8238-6d099cc09f29",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "GET /api/v1/admin/adventures",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/adventures",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "adventures"]
+        }
+      }
+    },
+    {
+      "name": "POST /api/v1/admin/adventures",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"stone-town-day-adventure\",\n  \"title\": \"Stone Town Day Adventure\",\n  \"subtitle\": \"Historic city & coast\",\n  \"description\": \"Explore Stone Town and nearby island highlights.\",\n  \"publish\": 1,\n  \"relatedPackageId\": {{packageId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/adventures",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "adventures"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json && json.id) pm.environment.set('adventureId', json.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/v1/admin/adventures/:id",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"slug\": \"stone-town-day-adventure\",\n  \"title\": \"Stone Town Day Adventure Updated\",\n  \"subtitle\": \"Historic city & coast\",\n  \"description\": \"Updated description\",\n  \"publish\": 1,\n  \"relatedPackageId\": {{packageId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/adventures/{{adventureId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "adventures", "{{adventureId}}"]
+        }
+      }
+    },
+    {
+      "name": "DELETE /api/v1/admin/adventures/:id",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/admin/adventures/{{adventureId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "admin", "adventures", "{{adventureId}}"]
+        }
+      }
+    }
+  ]
+}
+

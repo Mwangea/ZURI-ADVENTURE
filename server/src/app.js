@@ -1,8 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 
 import apiV1Router from './routes/apiV1.js';
+import { ensureSchema } from './lib/db.js';
+import { bootstrapAdminIfConfigured } from './lib/bootstrapAdmin.js';
 
 export function createApp() {
   const app = express();
@@ -24,6 +27,7 @@ export function createApp() {
     }),
   );
   app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser());
 
   // Same-origin-friendly CORS for local development.
   // In production (same domain), CORS can be very restrictive.
@@ -58,6 +62,17 @@ export function createApp() {
       uptimeSeconds: process.uptime(),
       service: 'zuri-adventures-api',
     });
+  });
+
+  // If MySQL is configured, initialize schema on startup (best-effort).
+  ensureSchema().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[server] ensureSchema failed:', err);
+  });
+
+  bootstrapAdminIfConfigured().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('[server] bootstrapAdminIfConfigured failed:', err);
   });
 
   app.use('/api/v1', apiV1Router);

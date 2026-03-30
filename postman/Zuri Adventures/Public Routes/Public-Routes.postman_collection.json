@@ -1,0 +1,55 @@
+{
+  "info": {
+    "name": "Zuri Adventures - Public Routes",
+    "_postman_id": "736c84e3-c3b4-4d2a-b6b0-95f5a88f3a71",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "GET /api/v1/packages",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/packages",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "packages"]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/packages/:slug",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/packages/{{packageSlug}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "packages", "{{packageSlug}}"]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/adventures",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/adventures",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "adventures"]
+        }
+      }
+    },
+    {
+      "name": "GET /api/v1/adventures/:slug",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/adventures/{{adventureSlug}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "adventures", "{{adventureSlug}}"]
+        }
+      }
+    }
+  ]
+}
+
