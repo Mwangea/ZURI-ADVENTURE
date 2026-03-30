@@ -3,12 +3,15 @@ export interface SiteConfig {
   language: string;
   siteName: string;
   siteDescription: string;
+  /** Public site origin for canonical URLs in production (optional; override with VITE_SITE_URL). */
+  canonicalOrigin?: string;
 }
 
 export const siteConfig: SiteConfig = {
   language: "en",
   siteName: "Zuri Adventures",
   siteDescription: "Unforgettable Trips, Memorable Adventures - Experience the Best of Coastal Kenya",
+  canonicalOrigin: "https://zuriadventures.com",
 };
 
 // Hero Section
@@ -48,6 +51,10 @@ export interface ZigZagGridItem {
   image: string;
   imageAlt: string;
   reverse: boolean;
+  /** Longer summary for meta descriptions and detail pages */
+  seoDescription?: string;
+  /** Cross-link to a package detail URL slug */
+  relatedPackageSlug?: string;
 }
 
 export interface ZigZagGridConfig {
@@ -68,6 +75,9 @@ export const zigZagGridConfig: ZigZagGridConfig = {
       image: "/malindi-quad.jpg",
       imageAlt: "Quad bike adventure on Mambrui sand dunes",
       reverse: false,
+      seoDescription:
+        "Full-day Malindi adventure in Kenya: falconry, Lost Malindi, Mambrui sand dunes quad biking, lunch, and expert local guides.",
+      relatedPackageSlug: "malindi-explorer",
     },
     {
       id: "diani",
@@ -77,6 +87,9 @@ export const zigZagGridConfig: ZigZagGridConfig = {
       image: "/diani-sunset.jpg",
       imageAlt: "Diani beach sunset with traditional dhow boat",
       reverse: true,
+      seoDescription:
+        "Discover Diani Beach: African Pool, Bora Bora Game Reserve, Kongo River sunset, and coastal Kenya highlights with Zuri Adventures.",
+      relatedPackageSlug: "diani-discovery",
     },
     {
       id: "wasini",
@@ -86,6 +99,9 @@ export const zigZagGridConfig: ZigZagGridConfig = {
       image: "/snorkeling.jpg",
       imageAlt: "Snorkeling with colorful coral reef and marine life",
       reverse: false,
+      seoDescription:
+        "Wasini Island day trip: dolphin watching, coral reef snorkeling, seafood lunch, and marine guides on the Kenya coast.",
+      relatedPackageSlug: "wasini-marine",
     },
     {
       id: "mombasa",
@@ -95,6 +111,9 @@ export const zigZagGridConfig: ZigZagGridConfig = {
       image: "/mombasa-cruise.jpg",
       imageAlt: "Traditional dhow cruise at sunset in Mombasa",
       reverse: true,
+      seoDescription:
+        "Mombasa sunset dhow cruise, Swahili dinner, and evening city tour — half-day coastal Kenya experience.",
+      relatedPackageSlug: "mombasa-sunset",
     },
   ],
 };
@@ -443,6 +462,8 @@ export const faqConfig: FAQConfig = {
 
 // Packages Section
 export interface Package {
+  /** URL segment for programmatic SEO pages, e.g. /packages/malindi-explorer */
+  slug: string;
   name: string;
   duration: string;
   price: string;
@@ -453,6 +474,7 @@ export interface Package {
   ctaLink: string;
   featured: boolean;
   icon: string;
+  seoDescription?: string;
 }
 
 export interface PackagesConfig {
@@ -469,11 +491,14 @@ export const packagesConfig: PackagesConfig = {
   description: "From half-day excursions to full-day adventures, we have the perfect package for every traveler. All packages include transportation, expert guides, and unforgettable experiences.",
   packages: [
     {
+      slug: "malindi-explorer",
       name: "Malindi Explorer",
       duration: "Full Day",
       price: "$120",
       priceNote: "per person",
       image: "/malindi-quad.jpg",
+      seoDescription:
+        "Book the Malindi Explorer full-day package: hotel transfers, falconry, Lost Malindi, Mambrui dune quad biking, lunch, and a professional guide.",
       features: [
         "Hotel pickup & drop-off",
         "Falconry center visit",
@@ -488,11 +513,14 @@ export const packagesConfig: PackagesConfig = {
       icon: "star",
     },
     {
+      slug: "diani-discovery",
       name: "Diani Discovery",
       duration: "Full Day",
       price: "$95",
       priceNote: "per person",
       image: "/diani-sunset.jpg",
+      seoDescription:
+        "Diani Discovery full-day tour: African Pool, Bora Bora Game Reserve, Kongo River sunset, snacks and drinks, and guided coastal Kenya experience.",
       features: [
         "Hotel pickup & drop-off",
         "African Pool visit",
@@ -507,11 +535,14 @@ export const packagesConfig: PackagesConfig = {
       icon: "clock",
     },
     {
+      slug: "wasini-marine",
       name: "Wasini Marine",
       duration: "Full Day",
       price: "$140",
       priceNote: "per person",
       image: "/snorkeling.jpg",
+      seoDescription:
+        "Wasini Marine package: dolphin watching, snorkeling gear, coral reefs, seafood lunch, and marine guides — full day from Coastal Kenya hotels.",
       features: [
         "Hotel pickup & drop-off",
         "Dolphin watching",
@@ -526,11 +557,14 @@ export const packagesConfig: PackagesConfig = {
       icon: "users",
     },
     {
+      slug: "mombasa-sunset",
       name: "Mombasa Sunset",
       duration: "Half Day",
       price: "$75",
       priceNote: "per person",
       image: "/mombasa-cruise.jpg",
+      seoDescription:
+        "Mombasa Sunset half-day package: dhow cruise, Swahili dinner, night city tour, and hotel pickup on the Kenya coast.",
       features: [
         "Hotel pickup & drop-off",
         "Sunset dhow cruise",
@@ -607,8 +641,10 @@ export const footerConfig: FooterConfig = {
     },
   ],
   logoText: "Zuri Adventures",
-  copyright: "2025 Zuri Adventures. All rights reserved.",
+  copyright: "Zuri Adventures. All rights reserved.",
   links: [
+    { label: "Packages", href: "/packages" },
+    { label: "Adventures", href: "/adventures" },
     { label: "Privacy Policy", href: "#" },
     { label: "Terms of Service", href: "#" },
   ],

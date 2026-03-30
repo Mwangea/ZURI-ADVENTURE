@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Check, Star, Clock, Users, Car } from 'lucide-react';
@@ -77,6 +78,7 @@ const Packages = () => {
 
   return (
     <section
+      id="packages"
       ref={sectionRef}
       className="relative w-full bg-kaleo-sand py-20 md:py-32 overflow-hidden"
     >
@@ -99,11 +101,11 @@ const Packages = () => {
 
         {/* Package Cards */}
         <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {packages.map((pkg, index) => {
+          {packages.map((pkg) => {
             const Icon = iconMap[pkg.icon] || Star;
             return (
               <div
-                key={index}
+                key={pkg.slug}
                 className={`package-card relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-deep transition-shadow ${
                   pkg.featured ? 'ring-2 ring-kaleo-terracotta' : ''
                 }`}
@@ -119,7 +121,11 @@ const Packages = () => {
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={pkg.image}
-                    alt={pkg.name}
+                    alt={`${pkg.name} — ${pkg.duration} coastal Kenya tour`}
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -128,7 +134,14 @@ const Packages = () => {
                       <Icon className="w-4 h-4" />
                       <span className="font-body text-xs uppercase tracking-wider">{pkg.duration}</span>
                     </div>
-                    <h3 className="font-display text-xl text-white">{pkg.name}</h3>
+                    <h3 className="font-display text-xl text-white">
+                      <Link
+                        to={`/packages/${pkg.slug}`}
+                        className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                      >
+                        {pkg.name}
+                      </Link>
+                    </h3>
                   </div>
                 </div>
 
@@ -150,18 +163,25 @@ const Packages = () => {
                     ))}
                   </ul>
 
-                  {/* CTA */}
-                  <button
-                    type="button"
-                    onClick={() => openBooking({ packageName: pkg.name })}
-                    className={`block w-full text-center py-3 rounded-full font-body text-sm uppercase tracking-wider transition-colors cursor-pointer ${
-                      pkg.featured
-                        ? 'bg-kaleo-terracotta text-white hover:bg-kaleo-earth'
-                        : 'bg-kaleo-sand text-kaleo-earth hover:bg-kaleo-earth hover:text-white'
-                    }`}
-                  >
-                    {pkg.ctaText}
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to={`/packages/${pkg.slug}`}
+                      className="block w-full text-center py-3 rounded-full font-body text-sm uppercase tracking-wider border border-kaleo-earth/15 text-kaleo-earth hover:bg-kaleo-earth/5 transition-colors"
+                    >
+                      Full details
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => openBooking({ packageName: pkg.name })}
+                      className={`block w-full text-center py-3 rounded-full font-body text-sm uppercase tracking-wider transition-colors cursor-pointer ${
+                        pkg.featured
+                          ? 'bg-kaleo-terracotta text-white hover:bg-kaleo-earth'
+                          : 'bg-kaleo-sand text-kaleo-earth hover:bg-kaleo-earth hover:text-white'
+                      }`}
+                    >
+                      {pkg.ctaText}
+                    </button>
+                  </div>
                 </div>
               </div>
             );

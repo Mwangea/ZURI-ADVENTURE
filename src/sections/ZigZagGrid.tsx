@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { zigZagGridConfig, type ZigZagGridItem } from '../config';
@@ -84,6 +85,10 @@ const GridItem = ({
             ref={imageRef}
             src={item.image}
             alt={item.imageAlt}
+            width={960}
+            height={720}
+            loading="lazy"
+            decoding="async"
             className="w-full h-[120%] object-cover"
             style={{
               willChange: 'transform',
@@ -107,6 +112,23 @@ const GridItem = ({
         <p className="font-body text-sm md:text-base text-kaleo-earth/70 leading-relaxed mt-6">
           {item.description}
         </p>
+
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link
+            to={`/adventures/${item.id}`}
+            className="inline-flex items-center font-body text-sm uppercase tracking-[0.15em] text-kaleo-terracotta underline-offset-4 hover:underline"
+          >
+            Adventure page
+          </Link>
+          {item.relatedPackageSlug && (
+            <Link
+              to={`/packages/${item.relatedPackageSlug}`}
+              className="inline-flex items-center font-body text-sm uppercase tracking-[0.15em] text-kaleo-earth/70 underline-offset-4 hover:text-kaleo-terracotta hover:underline"
+            >
+              Book this package
+            </Link>
+          )}
+        </div>
 
         {/* Decorative line */}
         <div className="w-16 h-px bg-kaleo-terracotta/30 mt-8" />

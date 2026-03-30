@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook } from 'lucide-react';
@@ -151,6 +152,7 @@ const Footer = () => {
 
   return (
     <footer
+      id="contact"
       ref={sectionRef}
       className="relative w-full bg-kaleo-charcoal text-kaleo-cream overflow-hidden"
     >
@@ -293,15 +295,29 @@ const Footer = () => {
         <div className="border-t border-kaleo-cream/10 py-6">
           <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="font-body text-xs text-kaleo-cream/40">
-              {footerConfig.copyright}
+              © {new Date().getFullYear()} {footerConfig.copyright}
             </p>
             {footerConfig.links.length > 0 && (
-              <div className="flex gap-6">
-                {footerConfig.links.map((link, index) => (
-                  <a key={index} href={link.href} className="font-body text-xs text-kaleo-cream/40 hover:text-kaleo-cream transition-colors">
-                    {link.label}
-                  </a>
-                ))}
+              <div className="flex flex-wrap justify-center gap-6">
+                {footerConfig.links.map((link, index) =>
+                  link.href.startsWith('/') ? (
+                    <Link
+                      key={index}
+                      to={link.href}
+                      className="font-body text-xs text-kaleo-cream/40 hover:text-kaleo-cream transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={index}
+                      href={link.href}
+                      className="font-body text-xs text-kaleo-cream/40 hover:text-kaleo-cream transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ),
+                )}
               </div>
             )}
           </div>

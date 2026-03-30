@@ -73,6 +73,7 @@ const FAQ = () => {
 
   return (
     <section
+      id="faq"
       ref={sectionRef}
       className="relative w-full bg-kaleo-cream py-20 md:py-32"
     >

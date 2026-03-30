@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://zuriadventures.com/</loc><changefreq>weekly</changefreq><priority>1</priority></url>
+  <url><loc>https://zuriadventures.com/packages</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://zuriadventures.com/packages/malindi-explorer</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/packages/diani-discovery</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/packages/wasini-marine</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/packages/mombasa-sunset</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/adventures</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://zuriadventures.com/adventures/malindi</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/adventures/diani</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/adventures/wasini</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://zuriadventures.com/adventures/mombasa</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>

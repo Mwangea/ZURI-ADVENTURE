@@ -107,6 +107,9 @@ const Hero = () => {
         <img
           src={heroConfig.backgroundImage}
           alt={heroConfig.backgroundAlt}
+          width={1920}
+          height={1080}
+          fetchPriority="high"
           className="w-full h-full object-cover ken-burns"
         />
       </div>
