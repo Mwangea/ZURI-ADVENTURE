@@ -17,7 +17,12 @@ Use this document to track what you ship. Update **Status** and **Tag / notes** 
 
 ## Release Workflow
 
-Finish a row’s scope → mark **Status** (e.g. Done) → add a git tag or deployment note in **Tag / notes** → start the next row.
+Finish a row’s scope.
+Mark **Status** (e.g. Done).
+Add a git tag or deployment note in **Tag / notes**.
+Then start the next row.
+
+For SEO releases: ensure the admin “publish” endpoint triggers SEO cache invalidation for affected detail pages (`/packages/:slug`, `/adventures/:slug`).
 
 ## Current Defaults (for this phase)
 

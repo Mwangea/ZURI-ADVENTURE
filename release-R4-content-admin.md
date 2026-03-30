@@ -52,3 +52,5 @@ Admin CRUD UI + API for:
 - Admin can update each section and see changes on the public site after publish.
 - Promo banner can be toggled and scheduled.
 - Admin gallery supports multi-image upload + reorder + delete with immediate preview.
+
+For SEO-related content: the admin “publish” action must trigger SEO cache invalidation for affected detail pages (`/packages/:slug`, `/adventures/:slug`), since caching is handled in Express locally.
