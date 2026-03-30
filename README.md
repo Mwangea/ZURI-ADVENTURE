@@ -13,6 +13,8 @@ An editorial, earth-toned single-page website template with premium scroll-drive
 
 ## Tech Stack
 
+### Frontend (this repo)
+
 - React 19 + TypeScript
 - Vite
 - Tailwind CSS 3 with custom theme
@@ -20,6 +22,37 @@ An editorial, earth-toned single-page website template with premium scroll-drive
 - Lenis for smooth scrolling
 - Lucide React for icons
 - Cormorant Garamond (display) + Inter (body) fonts
+
+### Backend (planned)
+
+- **Node.js + Express** — REST API, auth for admin, file uploads (e.g. signed URLs to object storage)
+- **Versioned paths** — Prefer `/api/v1/...` (resources, not `/api/getPackages`)
+
+### API base URL (same domain vs subdomain)
+
+| Approach | Example | When it fits |
+|----------|---------|----------------|
+| **Same origin (recommended default)** | `https://zuriadventures.com/api/v1/packages` | SPA and API sit behind one host (Nginx, Caddy, Vercel rewrites, etc.). Browser calls `/api/v1/...` as **same site** → simpler CORS for the app, one TLS cert, easy cookies if you add session/JWT in `HttpOnly` later. |
+| **API subdomain** | `https://api.zuriadventures.com/v1/packages` | Separate deploy/scaling/team ownership, or mobile apps hitting a dedicated API host. SPA on `www` or apex must use **CORS**; shared cookies need `Domain=.zuriadventures.com` and `Secure`. |
+
+**Practice:** Use **nouns and HTTP verbs**, e.g. `GET /api/v1/packages`, `GET /api/v1/packages/:slug`, `POST /api/v1/enquiries` — not `getpackages` in the path.
+
+## Product roadmap & releases
+
+Use this table as the single place to track what shipped. Update **Status** and **Tag / notes** when a release is done.
+
+| Release | Status | Scope (summary) | Tag / notes |
+|---------|--------|-----------------|-------------|
+| **R0** — API foundation | Planned | Express app, config/env, DB connection, `GET /health`, CORS policy chosen, `/api/v1` router shell | |
+| **R1** — Catalog + admin auth | Planned | Packages & adventures CRUD (admin); public list/detail; `scheduling_mode` fixed vs flexible; tags; DB schema | |
+| **R2** — Site ↔ API | Planned | Frontend loads catalog from API; listing filters + search (~15 packages); adventures wired same way | |
+| **R3** — Enquiries + email | Planned | Enquiry POST (fixed → `departure_id`; flexible → preferred dates); staff + guest notifications | |
+| **R4** — Content admin | Planned | Hero image, testimonials, scheduled promo banner, policies body, gallery (images + video URLs/embeds) | |
+| **R5** — Trust + conversion | Planned | Payments info page, policy routes + footer links; share/copy link + WhatsApp; rate limits + spam protection on public forms | |
+| **R6** — SEO + polish (English-first) | Planned | English-first sitemap + per-route meta/OG basics, structured data validation; optional PDF itinerary, referrals, PWA later | i18n/content translation deferred for now |
+| **R7** — i18n content + locale SEO | Backlog | Language toggle UI, RTL for `ar`/`he`, and locale URL strategy (`/fr/...`, `/he/...`, etc.) with `hreflang`; multilingual package/policy content loaded from API | deferred until after v1 is live |
+
+**Release workflow:** Finish a row’s scope → mark **Status** (e.g. Done) → add git tag or deploy note in **Tag / notes** → start the next row.
 
 ## Quick Start
 
