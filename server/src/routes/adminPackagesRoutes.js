@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import crypto from 'crypto';
 
 import { ensureSchema, isDbReady, pool } from '../lib/db.js';
 import { requireAdminJwt } from '../middleware/adminAuth.js';
@@ -17,19 +16,133 @@ function toBool(value) {
   return 0;
 }
 
+async function readPackageDetailById(packageId) {
+  const [pkgRows] = await pool.query('SELECT * FROM packages WHERE id = ? LIMIT 1', [packageId]);
+  const pkg = pkgRows?.[0];
+  if (!pkg) return null;
+
+  const [tiers] = await pool.query(
+    `
+    SELECT min_person, max_person, price_per_person, currency, sort_order
+    FROM package_price_tiers
+    WHERE package_id = ?
+    ORDER BY sort_order ASC, min_person ASC
+    `,
+    [pkg.id],
+  );
+
+  const [media] = await pool.query(
+    `
+    SELECT
+      id,
+      media_type,
+      src_url,
+      video_embed_url,
+      title,
+      caption,
+      thumbnail_url,
+      sort_order,
+      is_thumbnail,
+      thumbnail_sort_order
+    FROM package_media
+    WHERE package_id = ?
+    ORDER BY sort_order ASC
+    `,
+    [pkg.id],
+  );
+
+  const [highlights] = await pool.query(
+    'SELECT text, sort_order FROM package_highlights WHERE package_id = ? ORDER BY sort_order ASC',
+    [pkg.id],
+  );
+  const [included] = await pool.query(
+    'SELECT text, sort_order FROM package_included WHERE package_id = ? ORDER BY sort_order ASC',
+    [pkg.id],
+  );
+  const [excluded] = await pool.query(
+    'SELECT text, sort_order FROM package_excluded WHERE package_id = ? ORDER BY sort_order ASC',
+    [pkg.id],
+  );
+  const [related] = await pool.query(
+    `
+    SELECT related_package_id, sort_order
+    FROM package_related_packages
+    WHERE package_id = ?
+    ORDER BY sort_order ASC
+    `,
+    [pkg.id],
+  );
+
+  return {
+    package: {
+      id: pkg.id,
+      slug: pkg.slug,
+      name: pkg.name,
+      duration: pkg.duration,
+      tourType: pkg.tourType,
+      maxPeople: pkg.maxPeople,
+      minAge: pkg.minAge,
+      schedulingMode: pkg.scheduling_mode,
+      featured: Boolean(pkg.featured),
+      publish: Boolean(pkg.publish),
+      heroImageUrl: pkg.hero_image_url,
+      seoDescription: pkg.seoDescription,
+      overview: pkg.overview,
+      priceBase: pkg.price_base,
+      priceNote: pkg.price_note,
+      tourMapUrl: pkg.tour_map_url,
+      pricingTiers: tiers.map((t) => ({
+        minPerson: t.min_person,
+        maxPerson: t.max_person,
+        pricePerPerson: Number(t.price_per_person),
+        currency: t.currency,
+        sortOrder: t.sort_order,
+      })),
+      media: media.map((m) => ({
+        id: m.id,
+        type: m.media_type,
+        srcUrl: m.src_url,
+        videoEmbedUrl: m.video_embed_url,
+        title: m.title,
+        caption: m.caption,
+        thumbnailUrl: m.thumbnail_url,
+        sortOrder: m.sort_order,
+        isThumbnail: Boolean(m.is_thumbnail),
+        thumbnailSortOrder: m.thumbnail_sort_order,
+      })),
+      tourHighlights: highlights.map((h) => h.text),
+      included: included.map((i) => i.text),
+      excluded: excluded.map((e) => e.text),
+      relatedPackageIds: related.map((r) => r.related_package_id),
+    },
+  };
+}
+
 router.get('/', async (req, res) => {
   if (!isDbReady()) return res.status(503).json({ error: { message: 'Database not configured' } });
   await ensureSchema();
 
   const limit = Math.min(Number(req.query.limit ?? 50), 100);
   const [rows] = await pool.query(
-    'SELECT id, slug, name, duration, featured, publish, updated_at FROM packages ORDER BY updated_at DESC LIMIT ?',
+    'SELECT id, slug, name, duration, featured, publish, hero_image_url AS heroImageUrl, updated_at FROM packages ORDER BY updated_at DESC LIMIT ?',
     [limit],
   );
 
   return res.json({
     packages: rows,
   });
+});
+
+router.get('/:id', async (req, res) => {
+  if (!isDbReady()) return res.status(503).json({ error: { message: 'Database not configured' } });
+  await ensureSchema();
+
+  const packageId = Number(req.params.id);
+  if (!Number.isFinite(packageId)) return res.status(400).json({ error: { message: 'Invalid id' } });
+
+  const detail = await readPackageDetailById(packageId);
+  if (!detail) return res.status(404).json({ error: { message: 'Package not found' } });
+  return res.json(detail);
 });
 
 router.post('/', async (req, res) => {

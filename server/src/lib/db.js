@@ -219,6 +219,31 @@ export async function ensureSchema() {
         ON DELETE CASCADE
     )
   `);
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS enquiries (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      full_name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NULL,
+      phone VARCHAR(50) NULL,
+      message TEXT NULL,
+      package_id INT NULL,
+      adventure_id INT NULL,
+      status ENUM('NEW','IN_REVIEW','CONFIRMED','CANCELLED') NOT NULL DEFAULT 'NEW',
+      internal_note TEXT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_enquiries_status (status),
+      INDEX idx_enquiries_package_id (package_id),
+      INDEX idx_enquiries_adventure_id (adventure_id),
+      CONSTRAINT fk_enquiries_package
+        FOREIGN KEY (package_id) REFERENCES packages(id)
+        ON DELETE SET NULL,
+      CONSTRAINT fk_enquiries_adventure
+        FOREIGN KEY (adventure_id) REFERENCES adventures(id)
+        ON DELETE SET NULL
+    )
+  `);
 }
 
 export function isDbReady() {
