@@ -1,5 +1,8 @@
 # R2 - Site ↔ API (Frontend integration)
 
+## Status
+In Progress
+
 ## Goal
 Replace the current template/local config data source with your Express API for public pages.
 
