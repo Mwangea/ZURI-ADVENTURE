@@ -17,10 +17,40 @@ router.get('/', async (req, res) => {
 
   const limit = Math.min(Number(req.query.limit ?? 50), 100);
   const [rows] = await pool.query(
-    'SELECT id, slug, title, subtitle, publish, updated_at FROM adventures ORDER BY updated_at DESC LIMIT ?',
+    'SELECT id, slug, title, subtitle, hero_image_url AS heroImageUrl, related_package_id AS relatedPackageId, publish, updated_at FROM adventures ORDER BY updated_at DESC LIMIT ?',
     [limit],
   );
   return res.json({ adventures: rows });
+});
+
+router.get('/:id', async (req, res) => {
+  if (!isDbReady()) return res.status(503).json({ error: { message: 'Database not configured' } });
+  await ensureSchema();
+
+  const adventureId = Number(req.params.id);
+  if (!Number.isFinite(adventureId)) return res.status(400).json({ error: { message: 'Invalid id' } });
+
+  const [rows] = await pool.query(
+    `
+    SELECT
+      id,
+      slug,
+      title,
+      subtitle,
+      description,
+      hero_image_url AS heroImageUrl,
+      related_package_id AS relatedPackageId,
+      publish
+    FROM adventures
+    WHERE id = ?
+    LIMIT 1
+    `,
+    [adventureId],
+  );
+
+  const adventure = rows?.[0];
+  if (!adventure) return res.status(404).json({ error: { message: 'Adventure not found' } });
+  return res.json({ adventure });
 });
 
 router.post('/', async (req, res) => {

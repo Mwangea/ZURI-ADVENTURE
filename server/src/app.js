@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 import apiV1Router from './routes/apiV1.js';
 import { ensureSchema } from './lib/db.js';
@@ -15,6 +16,9 @@ export function createApp() {
   app.use(
     helmet({
       contentSecurityPolicy: false,
+      // Allow admin (Vite :5173) and public site to embed /uploads in <img>/<video>.
+      // Default same-origin CORP causes ERR_BLOCKED_BY_RESPONSE.NotSameOrigin cross-port.
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
 
@@ -28,6 +32,7 @@ export function createApp() {
   );
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
+  app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
   // Same-origin-friendly CORS for local development.
   // In production (same domain), CORS can be very restrictive.
@@ -37,9 +42,12 @@ export function createApp() {
         if (!origin) return cb(null, true); // non-browser requests
         const allowedOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
         if (origin === allowedOrigin) return cb(null, true);
-        return cb(null, origin === process.env.CORS_ORIGIN);
+        return cb(null, false);
       },
-      credentials: false,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      optionsSuccessStatus: 204,
     }),
   );
 
