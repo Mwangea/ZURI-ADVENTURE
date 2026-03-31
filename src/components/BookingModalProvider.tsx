@@ -1,7 +1,9 @@
 import {
   createContext,
+  useEffect,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type FormEvent,
   type ReactNode,
@@ -18,7 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { packagesConfig } from '@/config';
+import { apiRequest } from '@/lib/api';
+import { fetchPublicPackages } from '@/lib/publicApi';
 
 type OpenOptions = { packageName?: string };
 
@@ -39,20 +42,38 @@ export function useBookingModal() {
 export function BookingModalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successRef, setSuccessRef] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [packageChoice, setPackageChoice] = useState('');
+  const [packageChoice, setPackageChoice] = useState(''); // package name shown in UI
+  const [partySize, setPartySize] = useState('1');
+  const [preferredDate, setPreferredDate] = useState('');
+  const [departureId, setDepartureId] = useState('');
   const [notes, setNotes] = useState('');
+  const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [packageOptions, setPackageOptions] = useState<Array<{ name: string; slug: string }>>([]);
+  const [schedulingMode, setSchedulingMode] = useState<'FIXED_DEPARTURES' | 'FLEXIBLE_DATES'>(
+    'FLEXIBLE_DATES',
+  );
+  const [departures, setDepartures] = useState<Array<{ id: number; date: string; spotsLeft?: number | null }>>([]);
 
   const resetForm = useCallback(() => {
     setName('');
     setEmail('');
     setPhone('');
     setPackageChoice('');
+    setPartySize('1');
+    setPreferredDate('');
+    setDepartureId('');
     setNotes('');
     setSuccess(false);
+    setSuccessRef('');
+    setFormError('');
+    setFieldErrors({});
     setSubmitting(false);
   }, []);
 
@@ -64,6 +85,64 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     setOpen(true);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    let mounted = true;
+    setLoadingPackages(true);
+    setFormError('');
+    fetchPublicPackages({ limit: 100, offset: 0, sort: 'name_asc' })
+      .then(({ packages }) => {
+        if (!mounted) return;
+        const next = packages.map(pkg => ({ name: pkg.name, slug: pkg.slug }));
+        setPackageOptions(next);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setFormError('Unable to load packages right now. Please try again.');
+      })
+      .finally(() => {
+        if (mounted) setLoadingPackages(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [open]);
+
+  const selectedPackageSlug = useMemo(() => {
+    return packageOptions.find(p => p.name === packageChoice)?.slug ?? '';
+  }, [packageChoice, packageOptions]);
+
+  useEffect(() => {
+    if (!selectedPackageSlug) {
+      setSchedulingMode('FLEXIBLE_DATES');
+      setDepartures([]);
+      setDepartureId('');
+      return;
+    }
+    let mounted = true;
+    apiRequest<{
+      package: {
+        schedulingMode?: 'FIXED_DEPARTURES' | 'FLEXIBLE_DATES';
+        departures?: Array<{ id: number; date: string; spotsLeft?: number | null }>;
+      };
+    }>(`/api/v1/packages/${encodeURIComponent(selectedPackageSlug)}`)
+      .then(({ package: pkg }) => {
+        if (!mounted) return;
+        const mode = pkg.schedulingMode === 'FIXED_DEPARTURES' ? 'FIXED_DEPARTURES' : 'FLEXIBLE_DATES';
+        setSchedulingMode(mode);
+        setDepartures(Array.isArray(pkg.departures) ? pkg.departures : []);
+        setDepartureId('');
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setSchedulingMode('FLEXIBLE_DATES');
+        setDepartures([]);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [selectedPackageSlug]);
+
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
     if (!next) {
@@ -73,14 +152,49 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !phone.trim() || !packageChoice) return;
-    setSubmitting(true);
-    await new Promise(r => setTimeout(r, 800));
-    setSubmitting(false);
-    setSuccess(true);
-  };
+    const errors: Record<string, string> = {};
+    if (!name.trim()) errors.name = 'Full name is required';
+    if (!email.trim()) errors.email = 'Email is required';
+    if (!phone.trim()) errors.phone = 'Phone is required';
+    if (!packageChoice || !selectedPackageSlug) errors.package = 'Package is required';
+    const parsedPartySize = Number(partySize);
+    if (!Number.isFinite(parsedPartySize) || parsedPartySize < 1) {
+      errors.partySize = 'Party size must be at least 1';
+    }
+    if (schedulingMode === 'FIXED_DEPARTURES' && !departureId) {
+      errors.departureId = 'Please select a departure date';
+    }
+    if (schedulingMode === 'FLEXIBLE_DATES' && !preferredDate) {
+      errors.preferredDate = 'Preferred date is required';
+    }
+    setFieldErrors(errors);
+    setFormError('');
+    if (Object.keys(errors).length) return;
 
-  const packageOptions = packagesConfig.packages.map(p => p.name);
+    setSubmitting(true);
+    try {
+      const response = await apiRequest<{ referenceCode?: string }>('/api/v1/enquiries', {
+        method: 'POST',
+        body: {
+          fullName: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          packageSlug: selectedPackageSlug,
+          partySize: parsedPartySize,
+          preferredDate: schedulingMode === 'FLEXIBLE_DATES' ? preferredDate : undefined,
+          departureId: schedulingMode === 'FIXED_DEPARTURES' ? Number(departureId) : undefined,
+          notes: notes.trim(),
+        },
+      });
+      setSuccessRef(response.referenceCode ?? '');
+      setSuccess(true);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to submit request';
+      setFormError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const fieldClass =
     'rounded-xl border-kaleo-earth/20 bg-white text-kaleo-earth placeholder:text-kaleo-earth/40';
@@ -105,6 +219,9 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                 <DialogDescription className="font-body text-kaleo-earth/70 text-base">
                   Thank you. Our team will contact you shortly to confirm your adventure.
                 </DialogDescription>
+                {successRef ? (
+                  <p className="font-body text-sm text-kaleo-earth/80">Reference: {successRef}</p>
+                ) : null}
               </DialogHeader>
               <Button
                 type="button"
@@ -135,9 +252,13 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                     required
                     autoComplete="name"
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={e => {
+                      setName(e.target.value);
+                      if (fieldErrors.name) setFieldErrors(prev => ({ ...prev, name: '' }));
+                    }}
                     className={fieldClass}
                   />
+                  {fieldErrors.name ? <p className="text-xs text-red-600">{fieldErrors.name}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="book-email" className="font-body text-kaleo-earth">
@@ -150,9 +271,13 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                     required
                     autoComplete="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                      if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: '' }));
+                    }}
                     className={fieldClass}
                   />
+                  {fieldErrors.email ? <p className="text-xs text-red-600">{fieldErrors.email}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="book-phone" className="font-body text-kaleo-earth">
@@ -165,9 +290,13 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                     required
                     autoComplete="tel"
                     value={phone}
-                    onChange={e => setPhone(e.target.value)}
+                    onChange={e => {
+                      setPhone(e.target.value);
+                      if (fieldErrors.phone) setFieldErrors(prev => ({ ...prev, phone: '' }));
+                    }}
                     className={fieldClass}
                   />
+                  {fieldErrors.phone ? <p className="text-xs text-red-600">{fieldErrors.phone}</p> : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="book-package" className="font-body text-kaleo-earth">
@@ -178,18 +307,93 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                     name="package"
                     required
                     value={packageChoice}
-                    onChange={e => setPackageChoice(e.target.value)}
+                    onChange={e => {
+                      setPackageChoice(e.target.value);
+                      if (fieldErrors.package) setFieldErrors(prev => ({ ...prev, package: '' }));
+                    }}
                     aria-label="Package"
+                    disabled={loadingPackages}
                     className="h-9 w-full rounded-xl border border-kaleo-earth/20 bg-white px-3 font-body text-sm text-kaleo-earth outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
                   >
-                    <option value="">Select a package</option>
-                    {packageOptions.map(n => (
-                      <option key={n} value={n}>
-                        {n}
+                    <option value="">{loadingPackages ? 'Loading packages...' : 'Select a package'}</option>
+                    {packageOptions.map(p => (
+                      <option key={p.slug} value={p.name}>
+                        {p.name}
                       </option>
                     ))}
                   </select>
+                  {fieldErrors.package ? <p className="text-xs text-red-600">{fieldErrors.package}</p> : null}
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="book-party-size" className="font-body text-kaleo-earth">
+                    Party size *
+                  </Label>
+                  <Input
+                    id="book-party-size"
+                    name="partySize"
+                    type="number"
+                    min={1}
+                    max={100}
+                    required
+                    value={partySize}
+                    onChange={e => {
+                      setPartySize(e.target.value);
+                      if (fieldErrors.partySize) setFieldErrors(prev => ({ ...prev, partySize: '' }));
+                    }}
+                    className={fieldClass}
+                  />
+                  {fieldErrors.partySize ? <p className="text-xs text-red-600">{fieldErrors.partySize}</p> : null}
+                </div>
+                {schedulingMode === 'FIXED_DEPARTURES' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="book-departure" className="font-body text-kaleo-earth">
+                      Departure date *
+                    </Label>
+                    <select
+                      id="book-departure"
+                      name="departureId"
+                      title="Departure date"
+                      required
+                      value={departureId}
+                      onChange={e => {
+                        setDepartureId(e.target.value);
+                        if (fieldErrors.departureId) setFieldErrors(prev => ({ ...prev, departureId: '' }));
+                      }}
+                      className="h-9 w-full rounded-xl border border-kaleo-earth/20 bg-white px-3 font-body text-sm text-kaleo-earth outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    >
+                      <option value="">Select a departure</option>
+                      {departures.map(d => (
+                        <option key={d.id} value={String(d.id)}>
+                          {d.date}
+                          {typeof d.spotsLeft === 'number' ? ` (${d.spotsLeft} spots left)` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {fieldErrors.departureId ? <p className="text-xs text-red-600">{fieldErrors.departureId}</p> : null}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="book-preferred-date" className="font-body text-kaleo-earth">
+                      Preferred date *
+                    </Label>
+                    <Input
+                      id="book-preferred-date"
+                      name="preferredDate"
+                      type="date"
+                      required
+                      value={preferredDate}
+                      onChange={e => {
+                        setPreferredDate(e.target.value);
+                        if (fieldErrors.preferredDate) setFieldErrors(prev => ({ ...prev, preferredDate: '' }));
+                      }}
+                      className={fieldClass}
+                    />
+                    {fieldErrors.preferredDate ? (
+                      <p className="text-xs text-red-600">{fieldErrors.preferredDate}</p>
+                    ) : null}
+                  </div>
+                )}
+                {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
                 <div className="space-y-2">
                   <Label htmlFor="book-notes" className="font-body text-kaleo-earth">
                     Notes (optional)

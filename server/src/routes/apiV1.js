@@ -3,6 +3,7 @@ import { Router } from 'express';
 import authRoutes from './authRoutes.js';
 import publicPackagesRoutes from './publicPackagesRoutes.js';
 import publicAdventuresRoutes from './publicAdventuresRoutes.js';
+import publicEnquiriesRoutes from './publicEnquiriesRoutes.js';
 import adminPackagesRoutes from './adminPackagesRoutes.js';
 import adminAdventuresRoutes from './adminAdventuresRoutes.js';
 import adminUploadsRoutes from './adminUploadsRoutes.js';
@@ -23,6 +24,7 @@ router.get('/', (_req, res) => {
       '/api/v1/packages/:slug',
       '/api/v1/adventures',
       '/api/v1/adventures/:slug',
+      '/api/v1/enquiries',
       '/api/v1/admin/packages',
       '/api/v1/admin/adventures',
       '/api/v1/admin/uploads/media',
@@ -35,6 +37,7 @@ router.get('/', (_req, res) => {
 router.use('/auth', authRoutes);
 router.use('/packages', publicPackagesRoutes);
 router.use('/adventures', publicAdventuresRoutes);
+router.use('/enquiries', publicEnquiriesRoutes);
 
 router.use('/admin/packages', adminPackagesRoutes);
 router.use('/admin/adventures', adminAdventuresRoutes);

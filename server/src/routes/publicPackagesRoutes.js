@@ -199,6 +199,16 @@ router.get('/:slug', async (req, res) => {
     `,
     [pkg.id],
   );
+  const [departures] = await pool.query(
+    `
+    SELECT id, departure_date, spots_left
+    FROM package_departures
+    WHERE package_id = ? AND publish = 1 AND departure_date >= CURDATE()
+    ORDER BY departure_date ASC
+    LIMIT 50
+    `,
+    [pkg.id],
+  );
 
   return res.json({
     package: {
@@ -254,6 +264,11 @@ router.get('/:slug', async (req, res) => {
         slug: r.related_slug,
         name: r.related_name,
         image: r.related_image,
+      })),
+      departures: departures.map((d) => ({
+        id: d.id,
+        date: d.departure_date,
+        spotsLeft: d.spots_left,
       })),
     },
   });

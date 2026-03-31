@@ -332,46 +332,50 @@ export default function AdminDashboardPage() {
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-[14px] border border-kaleo-earth/10 bg-white">
-        <div className="grid grid-cols-[110px_1fr_150px_130px] border-b border-kaleo-earth/10 px-5 py-[10px] text-[11px] font-semibold uppercase tracking-[.5px] text-kaleo-earth/50">
-          <span>Booking ID</span>
-          <span>Customer</span>
-          <span>Status</span>
-          <span>Date</span>
+      <section className="rounded-[14px] border border-kaleo-earth/10 bg-white">
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px]">
+            <div className="grid grid-cols-[110px_1fr_150px_130px] border-b border-kaleo-earth/10 px-5 py-[10px] text-[11px] font-semibold uppercase tracking-[.5px] text-kaleo-earth/50">
+              <span>Booking ID</span>
+              <span>Customer</span>
+              <span>Status</span>
+              <span>Date</span>
+            </div>
+
+            {loading ? (
+              <div className="px-5 py-8 text-sm text-kaleo-earth/55">Loading bookings...</div>
+            ) : (summary?.recentEnquiries ?? []).length === 0 ? (
+              <div className="px-5 py-8 text-sm text-kaleo-earth/55">No recent bookings yet.</div>
+            ) : (
+              (summary?.recentEnquiries ?? []).map((row) => {
+                const created = new Date(row.createdAt);
+                const bookingDate = Number.isNaN(created.getTime())
+                  ? '-'
+                  : created.toLocaleDateString(undefined, {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    });
+
+                return (
+                  <div
+                    key={row.id}
+                    className="grid h-[62px] grid-cols-[110px_1fr_150px_130px] items-center border-b border-kaleo-earth/10 px-5 text-sm hover:bg-kaleo-sand/30"
+                  >
+                    <div className="font-semibold text-kaleo-earth">#{row.id}</div>
+                    <div className="truncate pr-2 font-medium text-kaleo-earth">{row.customerName || 'Guest'}</div>
+                    <div>
+                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusBadgeClass(row.status)}`}>
+                        {row.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="text-kaleo-earth/65">{bookingDate}</div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
-
-        {loading ? (
-          <div className="px-5 py-8 text-sm text-kaleo-earth/55">Loading bookings...</div>
-        ) : (summary?.recentEnquiries ?? []).length === 0 ? (
-          <div className="px-5 py-8 text-sm text-kaleo-earth/55">No recent bookings yet.</div>
-        ) : (
-          (summary?.recentEnquiries ?? []).map((row) => {
-            const created = new Date(row.createdAt);
-            const bookingDate = Number.isNaN(created.getTime())
-              ? '-'
-              : created.toLocaleDateString(undefined, {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                });
-
-            return (
-              <div
-                key={row.id}
-                className="grid h-[62px] grid-cols-[110px_1fr_150px_130px] items-center border-b border-kaleo-earth/10 px-5 text-sm hover:bg-kaleo-sand/30"
-              >
-                <div className="font-semibold text-kaleo-earth">#{row.id}</div>
-                <div className="truncate pr-2 font-medium text-kaleo-earth">{row.customerName || 'Guest'}</div>
-                <div>
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusBadgeClass(row.status)}`}>
-                    {row.status.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="text-kaleo-earth/65">{bookingDate}</div>
-              </div>
-            );
-          })
-        )}
       </section>
 
       <section className="grid grid-cols-2 gap-[14px] xl:grid-cols-4">

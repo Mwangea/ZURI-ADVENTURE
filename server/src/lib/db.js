@@ -30,6 +30,20 @@ export async function ensureSchema() {
   const q = async (sql) => {
     await pool.query(sql);
   };
+  const addColumnIfMissing = async (tableName, columnName, columnDefSql) => {
+    const [rows] = await pool.query(
+      `
+      SELECT COUNT(*) AS total
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME = ?
+      `,
+      [tableName, columnName],
+    );
+    if (Number(rows?.[0]?.total ?? 0) > 0) return;
+    await pool.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnDefSql}`);
+  };
 
   // Core admin/auth tables
   await q(`
@@ -244,6 +258,23 @@ export async function ensureSchema() {
         ON DELETE SET NULL
     )
   `);
+
+  // R3 additions for booking/enquiry flow
+  await addColumnIfMissing('enquiries', 'party_size', 'party_size INT NULL');
+  await addColumnIfMissing('enquiries', 'preferred_date', 'preferred_date DATE NULL');
+  await addColumnIfMissing('enquiries', 'departure_id', 'departure_id INT NULL');
+  await addColumnIfMissing('enquiries', 'reference_code', 'reference_code VARCHAR(32) NULL');
+
+  await q(`
+    ALTER TABLE enquiries
+    ADD INDEX idx_enquiries_departure_id (departure_id)
+  `).catch(() => {});
+  await q(`
+    ALTER TABLE enquiries
+    ADD CONSTRAINT fk_enquiries_departure
+    FOREIGN KEY (departure_id) REFERENCES package_departures(id)
+    ON DELETE SET NULL
+  `).catch(() => {});
 }
 
 export function isDbReady() {

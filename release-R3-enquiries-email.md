@@ -1,5 +1,8 @@
 # R3 - Enquiries + email notifications
 
+## Status
+Done
+
 ## Goal
 Let travelers submit enquiries/booking requests and notify staff and the guest.
 
@@ -46,3 +49,6 @@ Let travelers submit enquiries/booking requests and notify staff and the guest.
 - Submitting the booking modal sends data to the API (no mock).
 - Staff receives an email for a new enquiry (provider can be configured later in deployment).
 - Guest receives an acknowledgement email.
+
+## Delivery note
+R3 is complete for this cycle: booking modal and footer quick enquiry submit to `POST /api/v1/enquiries`, guest/staff email notifications are wired with branded HTML templates, and admin enquiries now support status updates, delete action, pagination, filters/search, and localStorage-backed filter persistence.
