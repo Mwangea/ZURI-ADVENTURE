@@ -7,7 +7,7 @@ Use this document to track what you ship. Update **Status** and **Tag / notes** 
 | Release | Status | Details | Scope (summary) |
 |---------|--------|---------|-----------------|
 | **R0** — API foundation | Done | [See R0](release-R0-api-foundation.md) | Express app, config/env, DB connection, `GET /health`, CORS policy chosen, `/api/v1` router shell |
-| **R1** — Catalog + admin auth | Planned | [See R1](release-R1-catalog-admin-auth.md) | Packages & adventures CRUD (admin); public list/detail; `scheduling_mode` fixed vs flexible; tags; DB schema |
+| **R1** — Catalog + admin auth | Done | [See R1](release-R1-catalog-admin-auth.md) | Packages & adventures CRUD (admin); public list/detail; `scheduling_mode` fixed vs flexible; tags; DB schema |
 | **R2** — Site ↔ API | Planned | [See R2](release-R2-site-api.md) | Frontend loads catalog from API; listing filters + search (~15 packages); adventures wired same way |
 | **R3** — Enquiries + email | Planned | [See R3](release-R3-enquiries-email.md) | Enquiry POST (fixed → `departure_id`; flexible → preferred dates); staff + guest notifications |
 | **R4** — Content admin | Planned | [See R4](release-R4-content-admin.md) | Hero image, testimonials, scheduled promo banner, policies body, gallery (images + video URLs/embeds) |

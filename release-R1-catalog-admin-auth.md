@@ -1,7 +1,13 @@
 # R1 - Catalog + admin auth
 
+## Status
+Done
+
 ## Goal
 Enable CRUD for packages/adventures in the admin, and expose public listing/detail endpoints.
+
+## Delivery note
+R1 is marked complete for the agreed implementation scope in this cycle, including admin auth, admin CRUD, dashboard with real data, media uploads, and video embed URL support in package media.
 
 ## Scope
 - Admin UI screens (first-class requirement for this release)
