@@ -3,7 +3,6 @@ import {
   footerConfig,
   siteConfig,
   type Package,
-  type ZigZagGridItem,
 } from '@/config';
 import { absoluteUrl } from '@/lib/site';
 
@@ -70,7 +69,10 @@ export function packageProductJsonLd(pkg: Package, path: string): Record<string,
   };
 }
 
-export function touristTripJsonLd(item: ZigZagGridItem, path: string): Record<string, unknown> {
+export function touristTripJsonLd(
+  item: { title: string; description: string; image: string; seoDescription?: string },
+  path: string,
+): Record<string, unknown> {
   const desc = item.seoDescription ?? item.description;
   return {
     '@context': 'https://schema.org',
@@ -96,7 +98,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]): Recor
   };
 }
 
-export function packageItemListJsonLd(packages: Package[]): Record<string, unknown> {
+export function packageItemListJsonLd(packages: Array<{ slug: string; name: string }>): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -111,7 +113,7 @@ export function packageItemListJsonLd(packages: Package[]): Record<string, unkno
   };
 }
 
-export function adventureItemListJsonLd(items: ZigZagGridItem[]): Record<string, unknown> {
+export function adventureItemListJsonLd(items: Array<{ slug?: string; id?: string; title: string }>): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -121,7 +123,7 @@ export function adventureItemListJsonLd(items: ZigZagGridItem[]): Record<string,
       '@type': 'ListItem',
       position: i + 1,
       name: item.title,
-      url: absoluteUrl(`/adventures/${item.id}`),
+      url: absoluteUrl(`/adventures/${item.slug || item.id || ''}`),
     })),
   };
 }

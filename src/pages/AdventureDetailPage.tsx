@@ -1,23 +1,52 @@
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { InteriorLayout } from '@/layouts/InteriorLayout';
 import { Seo } from '@/components/Seo';
-import { getAdventureBySlug, getPackageBySlug } from '@/lib/content-registry';
 import { pageTitle } from '@/lib/site';
 import { breadcrumbJsonLd, touristTripJsonLd, travelAgencyJsonLd } from '@/lib/jsonld';
+import { fetchPublicAdventureDetail, toAbsoluteMediaUrl, type PublicAdventureDetail } from '@/lib/publicApi';
 
 export default function AdventureDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const item = slug ? getAdventureBySlug(slug) : undefined;
+  const [item, setItem] = useState<PublicAdventureDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [notFound, setNotFound] = useState(false);
 
-  if (!item) {
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        setError('');
+        setNotFound(false);
+        const data = await fetchPublicAdventureDetail(slug);
+        if (!cancelled) setItem(data.adventure ?? null);
+      } catch (err) {
+        if (cancelled) return;
+        const status = (err as { status?: number }).status;
+        if (status === 404) setNotFound(true);
+        else setError((err as Error).message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (notFound) {
     return <Navigate to="/404" replace />;
   }
+  if (!item && !loading && !error) return <Navigate to="/404" replace />;
 
-  const path = `/adventures/${item.id}`;
-  const relatedPkg = item.relatedPackageSlug ? getPackageBySlug(item.relatedPackageSlug) : undefined;
-  const description = item.seoDescription ?? item.description;
-  const title = pageTitle(item.title);
+  const path = `/adventures/${item?.slug ?? slug ?? ''}`;
+  const relatedPkg = item?.relatedPackage ?? null;
+  const description = item?.description ?? '';
+  const title = pageTitle(item?.title ?? 'Adventure');
 
   return (
     <InteriorLayout>
@@ -25,20 +54,27 @@ export default function AdventureDetailPage() {
         title={title}
         description={description}
         canonicalPath={path}
-        ogImage={item.image}
-        ogImageAlt={item.imageAlt}
+        ogImage={toAbsoluteMediaUrl(item?.image)}
+        ogImageAlt={item?.title ?? 'Adventure'}
         ogType="article"
         jsonLd={[
           travelAgencyJsonLd(),
-          touristTripJsonLd(item, path),
+          touristTripJsonLd(
+            {
+              title: item?.title ?? '',
+              description: item?.description ?? '',
+              image: toAbsoluteMediaUrl(item?.image),
+            },
+            path,
+          ),
           breadcrumbJsonLd([
             { name: 'Home', path: '/' },
             { name: 'Adventures', path: '/adventures' },
-            { name: item.title, path },
+            { name: item?.title ?? 'Adventure', path },
           ]),
         ]}
       />
-      <article className="mx-auto max-w-4xl px-6 py-12 md:px-8 md:py-16 lg:px-12">
+      <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:px-8 md:py-16 lg:px-12">
         <nav aria-label="Breadcrumb" className="mb-8">
           <Link
             to="/adventures"
@@ -49,36 +85,40 @@ export default function AdventureDetailPage() {
           </Link>
         </nav>
 
-        <div className="overflow-hidden rounded-3xl">
-          <img
-            src={item.image}
-            alt={item.imageAlt}
-            width={1200}
-            height={675}
-            className="aspect-[16/9] w-full object-cover"
-            fetchPriority="high"
-          />
-        </div>
+        {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+        {loading ? <p className="mb-4 text-sm text-kaleo-earth/60">Loading adventure...</p> : null}
+        {item ? (
+          <div className="overflow-hidden rounded-3xl">
+            <img
+              src={toAbsoluteMediaUrl(item.image)}
+              alt={item.title}
+              width={1200}
+              height={675}
+              className="aspect-[16/9] w-full object-cover"
+              fetchPriority="high"
+            />
+          </div>
+        ) : null}
 
         <header className="mt-10">
-          <p className="font-body text-sm uppercase tracking-[0.2em] text-kaleo-terracotta">{item.subtitle}</p>
-          <h1 className="mt-2 font-display text-headline text-kaleo-earth">{item.title}</h1>
+          <p className="font-body text-sm uppercase tracking-[0.2em] text-kaleo-terracotta">{item?.subtitle}</p>
+          <h1 className="mt-2 font-display text-headline text-kaleo-earth">{item?.title}</h1>
         </header>
 
-        <p className="mt-8 font-body text-lg leading-relaxed text-kaleo-earth/80">{item.description}</p>
+        <p className="mt-8 font-body text-lg leading-relaxed text-kaleo-earth/80">{item?.description}</p>
 
-        <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          {relatedPkg && (
+        <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {relatedPkg ? (
             <Link
               to={`/packages/${relatedPkg.slug}`}
-              className="inline-flex items-center justify-center rounded-full bg-kaleo-terracotta px-8 py-4 font-body text-sm uppercase tracking-wider text-white transition-colors hover:bg-kaleo-earth"
+              className="inline-flex w-full items-center justify-center rounded-full bg-kaleo-terracotta px-6 py-3.5 font-body text-sm uppercase tracking-wider text-white transition-colors hover:bg-kaleo-earth sm:w-auto"
             >
               View {relatedPkg.name} package
             </Link>
-          )}
+          ) : null}
           <Link
             to="/packages"
-            className="inline-flex items-center justify-center rounded-full border border-kaleo-earth/20 px-8 py-4 font-body text-sm uppercase tracking-wider text-kaleo-earth transition-colors hover:border-kaleo-terracotta"
+            className="inline-flex w-full items-center justify-center rounded-full border border-kaleo-earth/20 px-6 py-3.5 font-body text-sm uppercase tracking-wider text-kaleo-earth transition-colors hover:border-kaleo-terracotta sm:w-auto"
           >
             Compare all packages
           </Link>

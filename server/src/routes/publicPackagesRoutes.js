@@ -17,10 +17,35 @@ router.get('/', async (req, res) => {
   await ensureSchema();
 
   const limit = Math.min(Number(req.query.limit ?? 50), 100);
-  const featuredOnly = String(req.query.featured ?? '').toLowerCase() === '1';
+  const featuredOnly = ['1', 'true', 'yes'].includes(String(req.query.featured ?? '').toLowerCase());
   const offset = Math.max(Number(req.query.offset ?? 0), 0);
+  const q = String(req.query.q ?? '')
+    .trim()
+    .slice(0, 80);
+  const duration = String(req.query.duration ?? '')
+    .trim()
+    .slice(0, 40);
+  const sort = String(req.query.sort ?? 'featured').toLowerCase();
 
-  const where = featuredOnly ? 'WHERE publish = 1 AND featured = 1' : 'WHERE publish = 1';
+  const whereParts = ['p.publish = 1'];
+  const params = [];
+  if (featuredOnly) whereParts.push('p.featured = 1');
+  if (duration) {
+    whereParts.push('p.duration = ?');
+    params.push(duration);
+  }
+  if (q) {
+    whereParts.push('(p.name LIKE ? OR p.duration LIKE ? OR COALESCE(p.seoDescription, \'\') LIKE ?)');
+    const like = `%${q}%`;
+    params.push(like, like, like);
+  }
+  const where = `WHERE ${whereParts.join(' AND ')}`;
+
+  let orderBy = 'p.featured DESC, p.updated_at DESC';
+  if (sort === 'price_asc') orderBy = 'price_from ASC, p.updated_at DESC';
+  if (sort === 'price_desc') orderBy = 'price_from DESC, p.updated_at DESC';
+  if (sort === 'newest') orderBy = 'p.updated_at DESC';
+  if (sort === 'name_asc') orderBy = 'p.name ASC';
 
   const sql = `
     SELECT
@@ -43,11 +68,20 @@ router.get('/', async (req, res) => {
     LEFT JOIN package_price_tiers t ON t.package_id = p.id
     ${where}
     GROUP BY p.id
-    ORDER BY p.featured DESC, p.updated_at DESC
+    ORDER BY ${orderBy}
     LIMIT ? OFFSET ?
   `;
 
-  const [rows] = await pool.query(sql, [limit, offset]);
+  const [countRows] = await pool.query(
+    `
+    SELECT COUNT(*) AS total
+    FROM packages p
+    ${where}
+    `,
+    params,
+  );
+
+  const [rows] = await pool.query(sql, [...params, limit, offset]);
 
   const packages = rows.map((p) => ({
     id: p.id,
@@ -60,7 +94,16 @@ router.get('/', async (req, res) => {
     priceNote: p.price_note,
   }));
 
-  return res.json({ packages });
+  const total = Number(countRows?.[0]?.total ?? 0);
+  return res.json({
+    packages,
+    page: {
+      total,
+      limit,
+      offset,
+      hasMore: offset + packages.length < total,
+    },
+  });
 });
 
 router.get('/:slug', async (req, res) => {
@@ -143,7 +186,7 @@ router.get('/:slug', async (req, res) => {
   const [related] = await pool.query(
     `
     SELECT
-      r.related_package_id,
+      rp.related_package_id,
       p2.slug AS related_slug,
       p2.name AS related_name,
       p2.hero_image_url AS related_image,
