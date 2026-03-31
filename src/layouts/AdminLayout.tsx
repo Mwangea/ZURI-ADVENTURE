@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Bell,
@@ -113,9 +113,11 @@ function Sidebar({
       }`}
     >
       <div className="flex items-center gap-[10px] px-[10px] pb-[18px]">
-        <div className="grid h-8 w-8 place-items-center rounded-[9px] bg-kaleo-terracotta text-white">
-          <LayoutDashboard size={16} />
-        </div>
+        <img
+          src="/zuri-logo.png"
+          alt="Zuri Adventures logo"
+          className={collapsed ? 'h-8 w-8 object-contain' : 'h-8 w-8 object-contain'}
+        />
         {!collapsed ? (
           <span className="truncate font-display text-[17px] font-bold leading-none">Zuri Adventures</span>
         ) : null}
@@ -157,10 +159,15 @@ function Sidebar({
 }
 
 function AdminLayoutInner() {
-  const { logout, admin } = useAdminAuth();
+  const { logout, admin, authFetch } = useAdminAuth();
   const { confirm } = useAdminConfirm();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [newEnquiriesCount, setNewEnquiriesCount] = useState(0);
+  const [latestEnquiries, setLatestEnquiries] = useState<
+    Array<{ id: number; fullName: string; createdAt: string; status: string }>
+  >([]);
   const location = useLocation();
 
   const page = location.pathname.split('/').filter(Boolean).pop() ?? 'dashboard';
@@ -178,6 +185,58 @@ function AdminLayoutInner() {
     if (!ok) return;
     await logout();
   };
+
+  useEffect(() => {
+    let mounted = true;
+    const loadNotifications = async () => {
+      try {
+        const [newData, latestData] = await Promise.all([
+          authFetch<{ page?: { total: number } }>('/api/v1/admin/enquiries?status=NEW&limit=1&offset=0'),
+          authFetch<{
+          enquiries: Array<{ id: number; fullName: string; createdAt: string; status: string }>;
+          }>('/api/v1/admin/enquiries?limit=20&offset=0'),
+        ]);
+        if (!mounted) return;
+        const enquiries = latestData.enquiries ?? [];
+        if (mounted) {
+          setNewEnquiriesCount(Number(newData.page?.total ?? 0));
+          setLatestEnquiries(enquiries.slice(0, 5));
+        }
+      } catch {
+        if (!mounted) return;
+        setNewEnquiriesCount(0);
+        setLatestEnquiries([]);
+      }
+    };
+    void loadNotifications();
+    const timer = window.setInterval(() => {
+      void loadNotifications();
+    }, 20000);
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, [authFetch]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const onClickOutside = () => setNotificationsOpen(false);
+    window.addEventListener('click', onClickOutside);
+    return () => {
+      window.removeEventListener('click', onClickOutside);
+    };
+  }, [notificationsOpen]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNotificationsOpen(false);
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => {
+      window.removeEventListener('keydown', onEscape);
+    };
+  }, [notificationsOpen]);
 
   return (
     <div className="h-screen w-full overflow-hidden bg-kaleo-earth">
@@ -227,14 +286,59 @@ function AdminLayoutInner() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    title="Notifications"
-                    aria-label="Notifications"
-                    className="rounded-xl border border-kaleo-earth/20 bg-white p-2 text-kaleo-earth/70"
-                  >
-                    <Bell size={15} />
-                  </button>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      title="Notifications"
+                      aria-label="Notifications"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setNotificationsOpen((v) => !v);
+                      }}
+                      className="relative rounded-xl border border-kaleo-earth/20 bg-white p-2 text-kaleo-earth/70"
+                    >
+                      <Bell size={15} />
+                      {newEnquiriesCount > 0 ? (
+                        <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+                          {newEnquiriesCount > 9 ? '9+' : newEnquiriesCount}
+                        </span>
+                      ) : null}
+                    </button>
+                    {notificationsOpen ? (
+                      <div
+                        className="absolute right-0 z-30 mt-2 w-[300px] rounded-xl border border-kaleo-earth/10 bg-white p-3 shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="mb-2 flex items-center justify-between">
+                          <p className="font-body text-xs uppercase tracking-wider text-kaleo-earth/60">Enquiries</p>
+                          <NavLink
+                            to="/admin/enquiries"
+                            onClick={() => setNotificationsOpen(false)}
+                            className="text-xs font-semibold text-kaleo-terracotta"
+                          >
+                            View all
+                          </NavLink>
+                        </div>
+                        <div className="space-y-2">
+                          {latestEnquiries.length ? (
+                            latestEnquiries.map((item) => (
+                              <NavLink
+                                key={item.id}
+                                to="/admin/enquiries"
+                                onClick={() => setNotificationsOpen(false)}
+                                className="block rounded-lg border border-kaleo-earth/10 px-2 py-2 hover:bg-kaleo-earth/5"
+                              >
+                                <p className="text-sm font-medium text-kaleo-earth">{item.fullName}</p>
+                                <p className="text-xs text-kaleo-earth/50">{new Date(item.createdAt).toLocaleString()}</p>
+                              </NavLink>
+                            ))
+                          ) : (
+                            <p className="text-sm text-kaleo-earth/60">No recent enquiries.</p>
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
                   <button
                     type="button"
                     title="User profile"

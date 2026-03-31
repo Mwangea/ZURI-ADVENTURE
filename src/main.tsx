@@ -7,6 +7,7 @@ import App from './App.tsx';
 import { BookingModalProvider } from '@/components/BookingModalProvider';
 import { routerBasename } from '@/lib/site';
 import { AdminAuthProvider } from '@/auth/AdminAuthContext';
+import { Toaster } from 'sonner';
 
 const basename = routerBasename();
 
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <AdminAuthProvider>
           <BookingModalProvider>
             <App />
+            <Toaster richColors position="top-right" />
           </BookingModalProvider>
         </AdminAuthProvider>
       </BrowserRouter>

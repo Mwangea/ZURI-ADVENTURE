@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Mail, Phone, MapPin, ArrowUpRight, Instagram, Facebook } from 'lucide-react';
 import { footerConfig } from '../config';
 import { useBookingModal } from '../components/BookingModalProvider';
+import { apiRequest } from '@/lib/api';
+import { fetchPublicPackages } from '@/lib/publicApi';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -83,6 +85,29 @@ const Footer = () => {
   const imageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [packageSlug, setPackageSlug] = useState('');
+  const [notes, setNotes] = useState('');
+  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [successRef, setSuccessRef] = useState('');
+  const [packageOptions, setPackageOptions] = useState<Array<{ slug: string; name: string }>>([]);
+  const clearFeedback = () => {
+    if (error) setError('');
+    if (successRef) setSuccessRef('');
+  };
+  const resetContactForm = () => {
+    setName('');
+    setEmail('');
+    setPhone('');
+    setPackageSlug('');
+    setNotes('');
+    formRef.current?.reset();
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -148,6 +173,65 @@ const Footer = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!successRef) return;
+    const timer = window.setTimeout(() => {
+      setSuccessRef('');
+    }, 5000);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [successRef]);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoadingPackages(true);
+    fetchPublicPackages({ limit: 100, offset: 0, sort: 'name_asc' })
+      .then(({ packages }) => {
+        if (!mounted) return;
+        setPackageOptions(packages.map(pkg => ({ slug: pkg.slug, name: pkg.name })));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setPackageOptions([]);
+      })
+      .finally(() => {
+        if (mounted) setLoadingPackages(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const onSubmitContact = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError('');
+    setSuccessRef('');
+    if (!name.trim() || !email.trim() || !phone.trim() || !notes.trim()) {
+      setError('Please fill full name, email, phone and message.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await apiRequest<{ referenceCode?: string }>('/api/v1/enquiries', {
+        method: 'POST',
+        body: {
+          fullName: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          packageSlug: packageSlug || undefined,
+          notes: notes.trim(),
+        },
+      });
+      setSuccessRef(response.referenceCode ?? 'Submitted');
+      resetContactForm();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Unable to submit enquiry');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (!footerConfig.heading && !footerConfig.logoText) return null;
 
   return (
@@ -202,7 +286,7 @@ const Footer = () => {
 
             {/* Right Column - Contact Grid */}
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8">
                 {/* Contact */}
                 {footerConfig.contact.length > 0 && (
                   <div>
@@ -268,6 +352,88 @@ const Footer = () => {
                     </div>
                   </div>
                 )}
+
+                <div className="xl:col-span-2">
+                  <h4 className="font-body text-xs uppercase tracking-[0.15em] text-kaleo-terracotta mb-4">
+                    Quick Enquiry
+                  </h4>
+                  <form ref={formRef} className="space-y-3" onSubmit={onSubmitContact}>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={e => {
+                        clearFeedback();
+                        setName(e.target.value);
+                      }}
+                      placeholder="Full name *"
+                      required
+                      className="w-full rounded-xl border border-kaleo-cream/20 bg-kaleo-charcoal/40 px-3 py-2 text-sm text-kaleo-cream placeholder:text-kaleo-cream/50 outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => {
+                        clearFeedback();
+                        setEmail(e.target.value);
+                      }}
+                      placeholder="Email *"
+                      required
+                      className="w-full rounded-xl border border-kaleo-cream/20 bg-kaleo-charcoal/40 px-3 py-2 text-sm text-kaleo-cream placeholder:text-kaleo-cream/50 outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={e => {
+                        clearFeedback();
+                        setPhone(e.target.value);
+                      }}
+                      placeholder="Phone *"
+                      required
+                      className="w-full rounded-xl border border-kaleo-cream/20 bg-kaleo-charcoal/40 px-3 py-2 text-sm text-kaleo-cream placeholder:text-kaleo-cream/50 outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    />
+                    <select
+                      value={packageSlug}
+                      onChange={e => {
+                        clearFeedback();
+                        setPackageSlug(e.target.value);
+                      }}
+                      aria-label="Preferred package"
+                      disabled={loadingPackages}
+                      className="w-full rounded-xl border border-kaleo-cream/20 bg-kaleo-charcoal/40 px-3 py-2 text-sm text-kaleo-cream outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    >
+                      <option value="" className="text-black">
+                        {loadingPackages ? 'Loading packages...' : 'Preferred package (optional)'}
+                      </option>
+                      {packageOptions.map(pkg => (
+                        <option key={pkg.slug} value={pkg.slug} className="text-black">
+                          {pkg.name}
+                        </option>
+                      ))}
+                    </select>
+                    <textarea
+                      value={notes}
+                      onChange={e => {
+                        clearFeedback();
+                        setNotes(e.target.value);
+                      }}
+                      rows={3}
+                      placeholder="Message *"
+                      required
+                      className="w-full rounded-xl border border-kaleo-cream/20 bg-kaleo-charcoal/40 px-3 py-2 text-sm text-kaleo-cream placeholder:text-kaleo-cream/50 outline-none focus-visible:ring-[3px] focus-visible:ring-kaleo-terracotta/40"
+                    />
+                    {error ? <p className="text-xs text-red-300">{error}</p> : null}
+                    {successRef ? (
+                      <p className="text-xs text-green-300">Sent successfully. Ref: {successRef}</p>
+                    ) : null}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full rounded-full bg-kaleo-terracotta px-4 py-2 font-body text-xs uppercase tracking-wider text-kaleo-cream hover:bg-kaleo-earth disabled:opacity-70"
+                    >
+                      {submitting ? 'Sending...' : 'Send enquiry'}
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
