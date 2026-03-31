@@ -307,7 +307,12 @@ export default function AdminPackagesPage() {
         })),
       ]);
     } catch (err) {
-      setError((err as Error).message);
+      const message = (err as Error).message;
+      if (message.toLowerCase().includes('file too large')) {
+        setError(`${message} Try a smaller/compressed video file.`);
+      } else {
+        setError(message);
+      }
     } finally {
       setUploadingMedia(false);
     }

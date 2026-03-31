@@ -4,18 +4,43 @@ import { ensureSchema, isDbReady, pool } from '../lib/db.js';
 
 const router = Router();
 
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
   if (!isDbReady()) return res.status(503).json({ error: { message: 'Database not configured' } });
   await ensureSchema();
+
+  const q = String(req.query.q ?? '')
+    .trim()
+    .slice(0, 80);
+  const limit = Math.min(Math.max(Number(req.query.limit ?? 50), 1), 100);
+  const offset = Math.max(Number(req.query.offset ?? 0), 0);
+  const whereParts = ['publish = 1'];
+  const params = [];
+  if (q) {
+    whereParts.push('(title LIKE ? OR subtitle LIKE ? OR COALESCE(description, \'\') LIKE ?)');
+    const like = `%${q}%`;
+    params.push(like, like, like);
+  }
+
+  const whereSql = whereParts.join(' AND ');
+
+  const [countRows] = await pool.query(
+    `
+    SELECT COUNT(*) AS total
+    FROM adventures
+    WHERE ${whereSql}
+    `,
+    params,
+  );
 
   const [rows] = await pool.query(
     `
     SELECT id, slug, title, subtitle, hero_image_url
     FROM adventures
-    WHERE publish = 1
+    WHERE ${whereSql}
     ORDER BY updated_at DESC
-    LIMIT 50
+    LIMIT ? OFFSET ?
     `,
+    [...params, limit, offset],
   );
 
   return res.json({
@@ -26,6 +51,12 @@ router.get('/', async (_req, res) => {
       subtitle: r.subtitle,
       image: r.hero_image_url,
     })),
+    page: {
+      total: Number(countRows?.[0]?.total ?? 0),
+      limit,
+      offset,
+      hasMore: offset + rows.length < Number(countRows?.[0]?.total ?? 0),
+    },
   });
 });
 

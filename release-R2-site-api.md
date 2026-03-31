@@ -1,7 +1,7 @@
 # R2 - Site ↔ API (Frontend integration)
 
 ## Status
-In Progress
+Done
 
 ## Goal
 Replace the current template/local config data source with your Express API for public pages.
@@ -53,3 +53,6 @@ Replace the current template/local config data source with your Express API for 
 - Public pages load real package/adventure data from the API.
 - Navigating between routes works.
 - Booking modal opens with correct package choice (wired to API enquiry later in R3).
+
+## Delivery note
+R2 is complete for this cycle: public packages/adventures listing and detail pages are API-driven, filters/search are wired to query params, pagination is enabled, JSON-LD/SEO bindings are updated, and localStorage persistence is in place for listing query state and cache.
