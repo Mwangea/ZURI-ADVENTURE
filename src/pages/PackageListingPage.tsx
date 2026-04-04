@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, Clock, Users, Car } from 'lucide-react';
 import { InteriorLayout } from '@/layouts/InteriorLayout';
 import { Seo } from '@/components/Seo';
-import { packagesConfig, siteConfig } from '@/config';
+import { heroConfig, packagesConfig, siteConfig } from '@/config';
 import { pageTitle } from '@/lib/site';
 import {
   breadcrumbJsonLd,
@@ -151,6 +151,8 @@ export default function PackageListingPage() {
         title={pageTitle('Tour packages')}
         description={desc}
         canonicalPath="/packages"
+        ogImage={heroConfig.backgroundImage}
+        ogImageAlt={heroConfig.backgroundAlt}
         jsonLd={[
           travelAgencyJsonLd(),
           breadcrumbJsonLd([

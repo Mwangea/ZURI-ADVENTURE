@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { InteriorLayout } from '@/layouts/InteriorLayout';
 import { Seo } from '@/components/Seo';
 import { pageTitle } from '@/lib/site';
-import { paymentsPublicConfig, siteConfig } from '@/config';
+import { heroConfig, paymentsPublicConfig, siteConfig } from '@/config';
 
 const CANONICAL_PATH = '/payments';
 
@@ -33,6 +33,8 @@ export default function PaymentsInfoPage() {
         title={title}
         description={`Official payment details for ${siteConfig.siteName}: M-Pesa till, paybill, and bank transfer.`}
         canonicalPath={CANONICAL_PATH}
+        ogImage={heroConfig.backgroundImage}
+        ogImageAlt={heroConfig.backgroundAlt}
       />
       <section className="relative overflow-hidden bg-gradient-to-b from-kaleo-sand to-[#f4f0e8] px-4 py-10 md:px-8 md:py-14">
         <div className="pointer-events-none absolute -left-20 top-10 h-56 w-56 rounded-full bg-kaleo-terracotta/10 blur-3xl" />
