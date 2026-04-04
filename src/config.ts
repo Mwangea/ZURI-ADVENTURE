@@ -14,6 +14,33 @@ export const siteConfig: SiteConfig = {
   canonicalOrigin: "https://zuriadventures.com",
 };
 
+/** Public payment identifiers on /payments — below are example figures; replace with your real till, paybill, and bank details before go-live. */
+export interface PaymentsPublicConfig {
+  mpesaTillNumber: string;
+  mpesaPaybillNumber: string;
+  /** e.g. “Invoice number” or “Booking reference we send you” */
+  mpesaPaybillAccountNote: string;
+  /** Recipient / business name as it should appear on M-Pesa */
+  mpesaBusinessName: string;
+  bankName: string;
+  bankBranch: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+  swiftCode: string;
+}
+
+export const paymentsPublicConfig: PaymentsPublicConfig = {
+  mpesaTillNumber: "123456",
+  mpesaPaybillNumber: "4030201",
+  mpesaPaybillAccountNote: "Invoice or booking reference (e.g. ZA-20250403-00042) — we send this with your quote.",
+  mpesaBusinessName: "Zuri Adventures",
+  bankName: "Equity Bank",
+  bankBranch: "Mombasa — Digo Road",
+  bankAccountName: "Zuri Adventures Ltd",
+  bankAccountNumber: "0123456789012",
+  swiftCode: "EQBLKENA",
+};
+
 // Hero Section
 export interface HeroConfig {
   backgroundImage: string;
@@ -648,5 +675,6 @@ export const footerConfig: FooterConfig = {
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms of Service", href: "/terms-of-service" },
     { label: "Cancellation Policy", href: "/cancellation-policy" },
+    { label: "Payments", href: "/payments" },
   ],
 };

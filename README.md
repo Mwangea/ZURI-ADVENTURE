@@ -11,7 +11,7 @@ Use this document to track what you ship. Update **Status** and **Tag / notes** 
 | **R2** — Site ↔ API | Done | [See R2](release-R2-site-api.md) | Frontend loads catalog from API; listing filters + search (~15 packages); adventures wired same way |
 | **R3** — Enquiries + email | Done | [See R3](release-R3-enquiries-email.md) | Enquiry POST (fixed → `departure_id`; flexible → preferred dates); staff + guest notifications |
 | **R4** — Content admin | Done | [See R4](release-R4-content-admin.md) | Hero image, testimonials, scheduled promo banner, policies body, gallery (images + video URLs/embeds) |
-| **R5** — Trust + conversion | Planned | [See R5](release-R5-trust-conversion.md) | Payments info page, policy routes + footer links; share/copy link + WhatsApp; rate limits + spam protection on public forms |
+| **R5** — Trust + conversion | Done | [See R5](release-R5-trust-conversion.md) | Payments info page, policy routes + footer links; share/copy link + WhatsApp; rate limits + spam protection on public forms |
 | **R6** — SEO + polish (English-first) | Planned | [See R6](release-R6-seo-polish.md) | English-first sitemap + per-route meta/OG basics, structured data validation; optional PDF itinerary, referrals, PWA later |
 | **R7** — i18n content + locale SEO | Backlog | [See R7](release-R7-i18n-locale-seo.md) | Locale URL strategy + RTL for `ar`/`he` with `hreflang`; multilingual content loaded from API (deferred) |
 

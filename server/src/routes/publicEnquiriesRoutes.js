@@ -1,9 +1,26 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 
 import { ensureSchema, isDbReady, pool } from '../lib/db.js';
 import { sendEnquiryEmails } from '../lib/email.js';
 
 const router = Router();
+
+/** Limits burst spam on the public enquiry endpoint (per IP). */
+const enquiryPostLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: {
+        message:
+          'Too many booking requests from this address. Please wait a few minutes and try again.',
+      },
+    });
+  },
+});
 
 function trimString(value, max = 500) {
   if (typeof value !== 'string') return '';
@@ -23,11 +40,15 @@ function makeReferenceCode(insertId) {
   return `ZA-${y}${m}${d}-${String(insertId).padStart(5, '0')}`;
 }
 
-router.post('/', async (req, res) => {
+router.post('/', enquiryPostLimiter, async (req, res) => {
   if (!isDbReady()) return res.status(503).json({ error: { message: 'Database not configured' } });
   await ensureSchema();
 
   const body = req.body ?? {};
+  // Honeypot: must stay empty (bots often fill "website" fields).
+  if (trimString(body.website, 500)) {
+    return res.status(400).json({ error: { message: 'Unable to submit right now. Please try again.' } });
+  }
   const fullName = trimString(body.fullName, 255);
   const email = trimString(body.email, 255);
   const phone = trimString(body.phone, 50);

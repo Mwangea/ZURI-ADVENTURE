@@ -6,6 +6,7 @@ import PackageDetailPage from '@/pages/PackageDetailPage';
 import AdventureListingPage from '@/pages/AdventureListingPage';
 import AdventureDetailPage from '@/pages/AdventureDetailPage';
 import PolicyPage from '@/pages/PolicyPage';
+import PaymentsInfoPage from '@/pages/PaymentsInfoPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import RequireAdminAuth from '@/components/admin/RequireAdminAuth';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/privacy-policy" element={<PolicyPage />} />
         <Route path="/terms-of-service" element={<PolicyPage />} />
         <Route path="/cancellation-policy" element={<PolicyPage />} />
+        <Route path="/payments" element={<PaymentsInfoPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { Check, ArrowLeft } from 'lucide-react';
+import { Check, ArrowLeft, Star } from 'lucide-react';
 import { InteriorLayout } from '@/layouts/InteriorLayout';
 import { Seo } from '@/components/Seo';
 import { useBookingModal } from '@/components/BookingModalProvider';
@@ -12,6 +12,7 @@ import {
   toEmbeddedVideoUrl,
   type PublicPackageDetail,
 } from '@/lib/publicApi';
+import { TripShareBar } from '@/components/TripShareBar';
 
 export default function PackageDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -196,6 +197,8 @@ export default function PackageDetailPage() {
           </div>
         </header>
 
+        {pkg ? <TripShareBar path={path} title={pkg.name} /> : null}
+
         <section className="mt-10 grid gap-4 rounded-2xl border border-kaleo-earth/10 bg-white p-5 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p className="text-xs uppercase text-kaleo-earth/50">Tour type</p>
@@ -333,6 +336,19 @@ export default function PackageDetailPage() {
             </div>
           </section>
         ) : null}
+
+        <section className="mt-10 rounded-2xl border border-kaleo-earth/10 bg-white p-6" aria-labelledby="package-reviews-heading">
+          <h2 id="package-reviews-heading" className="font-display text-xl text-kaleo-earth">
+            Reviews
+          </h2>
+          <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-kaleo-earth/20 bg-kaleo-sand/25 px-6 py-12 text-center">
+            <Star className="h-11 w-11 text-kaleo-earth/20" strokeWidth={1.25} aria-hidden />
+            <p className="mt-4 font-body text-sm font-medium text-kaleo-earth/70">No reviews yet</p>
+            <p className="mt-2 max-w-sm font-body text-xs leading-relaxed text-kaleo-earth/50">
+              Guest reviews will appear here after trips. Book with us and you can share your experience later.
+            </p>
+          </div>
+        </section>
 
         <nav aria-label="Related destinations" className="mt-14 border-t border-kaleo-earth/10 pt-10">
           <p className="font-body text-sm text-kaleo-earth/70">
