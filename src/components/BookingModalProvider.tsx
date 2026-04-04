@@ -51,6 +51,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
   const [preferredDate, setPreferredDate] = useState('');
   const [departureId, setDepartureId] = useState('');
   const [notes, setNotes] = useState('');
+  /** Honeypot — must stay empty (server rejects non-empty). */
+  const [website, setWebsite] = useState('');
   const [formError, setFormError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -70,6 +72,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     setPreferredDate('');
     setDepartureId('');
     setNotes('');
+    setWebsite('');
     setSuccess(false);
     setSuccessRef('');
     setFormError('');
@@ -184,12 +187,18 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
           preferredDate: schedulingMode === 'FLEXIBLE_DATES' ? preferredDate : undefined,
           departureId: schedulingMode === 'FIXED_DEPARTURES' ? Number(departureId) : undefined,
           notes: notes.trim(),
+          website,
         },
       });
       setSuccessRef(response.referenceCode ?? '');
       setSuccess(true);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to submit request';
+      const err = error as Error & { status?: number };
+      const raw = err instanceof Error ? err.message : 'Unable to submit request';
+      const message =
+        err.status === 429 || /too many/i.test(raw)
+          ? 'Too many attempts. Please wait a few minutes and try again.'
+          : raw;
       setFormError(message);
     } finally {
       setSubmitting(false);
@@ -242,6 +251,21 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+                <div
+                  className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+                  aria-hidden="true"
+                >
+                  <label htmlFor="book-website">Company website</label>
+                  <input
+                    id="book-website"
+                    name="website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={website}
+                    onChange={e => setWebsite(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="book-name" className="font-body text-kaleo-earth">
                     Full name *

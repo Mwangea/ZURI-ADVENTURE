@@ -6,6 +6,7 @@ import { Seo } from '@/components/Seo';
 import { pageTitle } from '@/lib/site';
 import { breadcrumbJsonLd, touristTripJsonLd, travelAgencyJsonLd } from '@/lib/jsonld';
 import { fetchPublicAdventureDetail, toAbsoluteMediaUrl, type PublicAdventureDetail } from '@/lib/publicApi';
+import { TripShareBar } from '@/components/TripShareBar';
 
 export default function AdventureDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -104,6 +105,8 @@ export default function AdventureDetailPage() {
           <p className="font-body text-sm uppercase tracking-[0.2em] text-kaleo-terracotta">{item?.subtitle}</p>
           <h1 className="mt-2 font-display text-headline text-kaleo-earth">{item?.title}</h1>
         </header>
+
+        {item ? <TripShareBar path={path} title={item.title} /> : null}
 
         <p className="mt-8 font-body text-lg leading-relaxed text-kaleo-earth/80">{item?.description}</p>
 

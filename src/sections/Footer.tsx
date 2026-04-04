@@ -91,6 +91,8 @@ const Footer = () => {
   const [phone, setPhone] = useState('');
   const [packageSlug, setPackageSlug] = useState('');
   const [notes, setNotes] = useState('');
+  /** Honeypot — must stay empty. */
+  const [website, setWebsite] = useState('');
   const [loadingPackages, setLoadingPackages] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -106,6 +108,7 @@ const Footer = () => {
     setPhone('');
     setPackageSlug('');
     setNotes('');
+    setWebsite('');
     formRef.current?.reset();
   };
 
@@ -221,12 +224,19 @@ const Footer = () => {
           phone: phone.trim(),
           packageSlug: packageSlug || undefined,
           notes: notes.trim(),
+          website,
         },
       });
       setSuccessRef(response.referenceCode ?? 'Submitted');
       resetContactForm();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to submit enquiry');
+      const err = submitError as Error & { status?: number };
+      const raw = err instanceof Error ? err.message : 'Unable to submit enquiry';
+      setError(
+        err.status === 429 || /too many/i.test(raw)
+          ? 'Too many attempts. Please wait a few minutes and try again.'
+          : raw,
+      );
     } finally {
       setSubmitting(false);
     }
@@ -358,6 +368,24 @@ const Footer = () => {
                     Quick Enquiry
                   </h4>
                   <form ref={formRef} className="space-y-3" onSubmit={onSubmitContact}>
+                    <div
+                      className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+                      aria-hidden="true"
+                    >
+                      <label htmlFor="footer-website">Company website</label>
+                      <input
+                        id="footer-website"
+                        name="website"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={website}
+                        onChange={e => {
+                          clearFeedback();
+                          setWebsite(e.target.value);
+                        }}
+                      />
+                    </div>
                     <input
                       type="text"
                       value={name}
