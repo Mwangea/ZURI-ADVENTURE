@@ -5,7 +5,20 @@ import { heroConfig } from '../config';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Hero = () => {
+type HeroOverride = {
+  backgroundImage?: string;
+  backgroundAlt?: string;
+  title?: string;
+  subtitle?: string;
+};
+
+const Hero = ({ override }: { override?: HeroOverride }) => {
+  const data = {
+    backgroundImage: override?.backgroundImage || heroConfig.backgroundImage,
+    backgroundAlt: override?.backgroundAlt || heroConfig.backgroundAlt,
+    title: override?.title || heroConfig.title,
+    subtitle: override?.subtitle || heroConfig.subtitle,
+  };
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
@@ -91,7 +104,7 @@ const Hero = () => {
     };
   }, []);
 
-  if (!heroConfig.title && !heroConfig.backgroundImage) return null;
+  if (!data.title && !data.backgroundImage) return null;
 
   return (
     <section
@@ -105,8 +118,8 @@ const Hero = () => {
         style={{ willChange: 'transform' }}
       >
         <img
-          src={heroConfig.backgroundImage}
-          alt={heroConfig.backgroundAlt}
+          src={data.backgroundImage}
+          alt={data.backgroundAlt}
           width={1920}
           height={1080}
           fetchPriority="high"
@@ -135,7 +148,7 @@ const Hero = () => {
             willChange: 'transform, opacity'
           }}
         >
-          {heroConfig.title}
+          {data.title}
         </h1>
 
         {/* Subtitle */}
@@ -144,7 +157,7 @@ const Hero = () => {
           className="font-body text-kaleo-cream/90 text-sm md:text-base uppercase tracking-[0.3em] mt-6"
           style={{ willChange: 'transform, opacity' }}
         >
-          {heroConfig.subtitle}
+          {data.subtitle}
         </p>
       </div>
 

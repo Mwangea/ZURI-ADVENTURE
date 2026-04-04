@@ -24,14 +24,27 @@ const SLIDE_AXIS: 'x' | 'y' = 'x';
 const AUTOPLAY_MS = 6500;
 const SWIPE_PX = 48;
 
-const Testimonials = () => {
+type TestimonialItem = {
+  quote: string;
+  name: string;
+  location: string;
+  avatar: string;
+  rating: number;
+  trip: string;
+};
+
+type TestimonialsOverride = {
+  testimonials?: TestimonialItem[];
+};
+
+const Testimonials = ({ override }: { override?: TestimonialsOverride }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const carouselShellRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
   const badgesRef = useRef<HTMLDivElement>(null);
 
-  const testimonials = testimonialsConfig.testimonials;
+  const testimonials = override?.testimonials?.length ? override.testimonials : testimonialsConfig.testimonials;
   const [index, setIndex] = useState(0);
   const [autoplayPaused, setAutoplayPaused] = useState(false);
 

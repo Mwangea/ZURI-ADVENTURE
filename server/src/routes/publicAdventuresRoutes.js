@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { ensureSchema, isDbReady, pool } from '../lib/db.js';
+import { setPublicDetailSeoHeaders } from '../lib/seoCache.js';
 
 const router = Router();
 
@@ -86,6 +87,8 @@ router.get('/:slug', async (req, res) => {
   );
   const item = rows?.[0];
   if (!item) return res.status(404).json({ error: { message: 'Adventure not found' } });
+
+  setPublicDetailSeoHeaders(res);
 
   return res.json({
     adventure: {

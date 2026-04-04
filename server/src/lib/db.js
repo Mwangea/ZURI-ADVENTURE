@@ -259,7 +259,97 @@ export async function ensureSchema() {
     )
   `);
 
+  // R4 content admin foundation
+  await q(`
+    CREATE TABLE IF NOT EXISTS content_hero (
+      id TINYINT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL DEFAULT 'Zuri Adventures',
+      subtitle VARCHAR(500) NULL,
+      cta_label VARCHAR(120) NULL,
+      cta_link VARCHAR(1024) NULL,
+      background_image_url VARCHAR(2048) NULL,
+      publish TINYINT(1) NOT NULL DEFAULT 1,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await q(`
+    INSERT INTO content_hero (id, title, subtitle, cta_label, cta_link, publish)
+    VALUES (1, 'Zuri Adventures', 'Unforgettable Trips, Memorable Adventures', 'Book Now', '#book', 1)
+    ON DUPLICATE KEY UPDATE id = id
+  `);
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS content_testimonials (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      quote TEXT NOT NULL,
+      author_name VARCHAR(255) NOT NULL,
+      location VARCHAR(255) NULL,
+      avatar_url VARCHAR(2048) NULL,
+      rating TINYINT NULL,
+      trip_label VARCHAR(255) NULL,
+      publish TINYINT(1) NOT NULL DEFAULT 1,
+      sort_order INT NOT NULL DEFAULT 0,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_content_testimonials_publish_sort (publish, sort_order)
+    )
+  `);
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS content_promo_banner (
+      id TINYINT PRIMARY KEY,
+      enabled TINYINT(1) NOT NULL DEFAULT 0,
+      message VARCHAR(500) NULL,
+      image_url VARCHAR(2048) NULL,
+      cta_label VARCHAR(120) NULL,
+      cta_link VARCHAR(1024) NULL,
+      start_at DATETIME NULL,
+      end_at DATETIME NULL,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await q(`
+    INSERT INTO content_promo_banner (id, enabled, message)
+    VALUES (1, 0, NULL)
+    ON DUPLICATE KEY UPDATE id = id
+  `);
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS content_policies (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      type ENUM('TERMS','PRIVACY','CANCELLATION') NOT NULL,
+      slug VARCHAR(255) NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      body LONGTEXT NOT NULL,
+      publish TINYINT(1) NOT NULL DEFAULT 1,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_content_policies_type (type),
+      UNIQUE KEY uq_content_policies_slug (slug)
+    )
+  `);
+
+  await q(`
+    CREATE TABLE IF NOT EXISTS content_gallery_media (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      media_type ENUM('IMAGE','VIDEO') NOT NULL,
+      src_url VARCHAR(2048) NULL,
+      video_embed_url VARCHAR(2048) NULL,
+      title VARCHAR(255) NULL,
+      caption TEXT NULL,
+      section_key VARCHAR(100) NULL,
+      publish TINYINT(1) NOT NULL DEFAULT 1,
+      sort_order INT NOT NULL DEFAULT 0,
+      updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_content_gallery_media_publish_sort (publish, sort_order)
+    )
+  `);
+
   // R3 additions for booking/enquiry flow
+  await addColumnIfMissing('content_promo_banner', 'image_url', 'image_url VARCHAR(2048) NULL');
   await addColumnIfMissing('enquiries', 'party_size', 'party_size INT NULL');
   await addColumnIfMissing('enquiries', 'preferred_date', 'preferred_date DATE NULL');
   await addColumnIfMissing('enquiries', 'departure_id', 'departure_id INT NULL');
