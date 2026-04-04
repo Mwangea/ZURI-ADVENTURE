@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { InteriorLayout } from '@/layouts/InteriorLayout';
 import { Seo } from '@/components/Seo';
-import { zigZagGridConfig, siteConfig } from '@/config';
+import { heroConfig, zigZagGridConfig, siteConfig } from '@/config';
 import { pageTitle } from '@/lib/site';
 import {
   adventureItemListJsonLd,
@@ -104,6 +104,8 @@ export default function AdventureListingPage() {
         title={pageTitle('Adventures')}
         description={desc}
         canonicalPath="/adventures"
+        ogImage={heroConfig.backgroundImage}
+        ogImageAlt={heroConfig.backgroundAlt}
         jsonLd={[
           travelAgencyJsonLd(),
           breadcrumbJsonLd([

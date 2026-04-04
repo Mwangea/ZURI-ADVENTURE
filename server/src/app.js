@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 
 import apiV1Router from './routes/apiV1.js';
+import publicCrawlerRoutes from './routes/publicCrawlerRoutes.js';
 import { ensureSchema } from './lib/db.js';
 import { bootstrapAdminIfConfigured } from './lib/bootstrapAdmin.js';
 
@@ -71,6 +72,8 @@ export function createApp() {
       service: 'zuri-adventures-api',
     });
   });
+
+  app.use(publicCrawlerRoutes);
 
   // If MySQL is configured, initialize schema on startup (best-effort).
   ensureSchema().catch((err) => {

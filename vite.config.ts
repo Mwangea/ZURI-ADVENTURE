@@ -7,6 +7,12 @@ import { inspectAttr } from 'kimi-plugin-inspect-react'
 export default defineConfig({
   base: './',
   plugins: [inspectAttr(), react()],
+  server: {
+    proxy: {
+      '/sitemap.xml': { target: 'http://localhost:3001', changeOrigin: true },
+      '/robots.txt': { target: 'http://localhost:3001', changeOrigin: true },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
