@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { ensureSchema, isDbReady, pool } from '../lib/db.js';
+import { bumpSeoRevision } from '../lib/seoCache.js';
 import { requireAdminJwt } from '../middleware/adminAuth.js';
 
 const router = Router();
@@ -293,6 +294,7 @@ router.post('/', async (req, res) => {
     );
   }
 
+  bumpSeoRevision();
   return res.status(201).json({ ok: true, id: packageId });
 });
 
@@ -456,6 +458,7 @@ router.put('/:id', async (req, res) => {
     );
   }
 
+  bumpSeoRevision();
   return res.json({ ok: true });
 });
 
@@ -467,6 +470,7 @@ router.delete('/:id', async (req, res) => {
   if (!Number.isFinite(packageId)) return res.status(400).json({ error: { message: 'Invalid id' } });
 
   await pool.query('DELETE FROM packages WHERE id = ? LIMIT 1', [packageId]);
+  bumpSeoRevision();
   return res.json({ ok: true });
 });
 

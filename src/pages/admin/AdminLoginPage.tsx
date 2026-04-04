@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/auth/AdminAuthContext';
+import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
   const { login, isAuthenticated } = useAdminAuth();
@@ -23,9 +24,11 @@ export default function AdminLoginPage() {
     setSubmitting(true);
     try {
       await login(email, password);
+      toast.success('You successfully logged in');
       navigate(from, { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Login failed');
+      toast.error('Failed to login, please retry');
     } finally {
       setSubmitting(false);
     }
