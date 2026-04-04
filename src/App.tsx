@@ -5,6 +5,7 @@ import PackageListingPage from '@/pages/PackageListingPage';
 import PackageDetailPage from '@/pages/PackageDetailPage';
 import AdventureListingPage from '@/pages/AdventureListingPage';
 import AdventureDetailPage from '@/pages/AdventureDetailPage';
+import PolicyPage from '@/pages/PolicyPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import RequireAdminAuth from '@/components/admin/RequireAdminAuth';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -14,6 +15,7 @@ import AdminPackagesPage from '@/pages/admin/AdminPackagesPage';
 import AdminAdventuresPage from '@/pages/admin/AdminAdventuresPage';
 import AdminEnquiriesPage from '@/pages/admin/AdminEnquiriesPage';
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage';
+import AdminContentPageFresh from '@/pages/admin/AdminContentPageFresh';
 
 /** BrowserRouter does not support ScrollRestoration (data router only); reset scroll on route changes. */
 function ScrollToTop() {
@@ -43,6 +45,10 @@ export default function App() {
         <Route path="/packages/:slug" element={<PackageDetailPage />} />
         <Route path="/adventures" element={<AdventureListingPage />} />
         <Route path="/adventures/:slug" element={<AdventureDetailPage />} />
+        <Route path="/policies/:slug" element={<PolicyPage />} />
+        <Route path="/privacy-policy" element={<PolicyPage />} />
+        <Route path="/terms-of-service" element={<PolicyPage />} />
+        <Route path="/cancellation-policy" element={<PolicyPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"
@@ -58,6 +64,7 @@ export default function App() {
           <Route path="bookings" element={<AdminEnquiriesPage />} />
           <Route path="adventures" element={<AdminAdventuresPage />} />
           <Route path="enquiries" element={<AdminEnquiriesPage />} />
+          <Route path="content" element={<AdminContentPageFresh />} />
           <Route path="customers" element={<AdminPlaceholderPage title="Customers" />} />
           <Route path="vehicles" element={<AdminPlaceholderPage title="Vehicles" />} />
           <Route path="payments" element={<AdminPlaceholderPage title="Payments" />} />

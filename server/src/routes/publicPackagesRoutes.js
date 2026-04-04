@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { ensureSchema, isDbReady, pool } from '../lib/db.js';
+import { setPublicDetailSeoHeaders } from '../lib/seoCache.js';
 
 const router = Router();
 
@@ -114,6 +115,8 @@ router.get('/:slug', async (req, res) => {
   const [pkgRows] = await pool.query('SELECT * FROM packages WHERE slug = ? AND publish = 1 LIMIT 1', [slug]);
   const pkg = pkgRows?.[0];
   if (!pkg) return res.status(404).json({ error: { message: 'Package not found' } });
+
+  setPublicDetailSeoHeaders(res);
 
   // Pricing tiers
   const [tiers] = await pool.query(

@@ -9,10 +9,28 @@ import BreathSection from '@/sections/BreathSection';
 import ZigZagGrid from '@/sections/ZigZagGrid';
 import FAQ from '@/sections/FAQ';
 
+type HomeContentOverrides = {
+  testimonials?: Array<{
+    quote: string;
+    name: string;
+    location: string;
+    avatar: string;
+    rating: number;
+    trip: string;
+  }>;
+  galleryItems?: Array<{
+    mediaType: 'IMAGE' | 'VIDEO';
+    src: string;
+    alt: string;
+    caption: string;
+    videoEmbedUrl?: string;
+  }>;
+};
+
 /**
  * Heavier homepage sections loaded in one lazy boundary to reduce initial JS and improve LCP.
  */
-export default function BelowFoldSections() {
+export default function BelowFoldSections({ overrides }: { overrides?: HomeContentOverrides }) {
   useEffect(() => {
     ScrollTrigger.refresh();
   }, []);
@@ -22,8 +40,8 @@ export default function BelowFoldSections() {
       <About />
       <Packages />
       <InstagramReels />
-      <Gallery />
-      <Testimonials />
+      <Gallery override={{ items: overrides?.galleryItems }} />
+      <Testimonials override={{ testimonials: overrides?.testimonials }} />
       <BreathSection />
       <ZigZagGrid />
       <FAQ />
