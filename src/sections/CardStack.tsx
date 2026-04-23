@@ -109,7 +109,7 @@ const CardStack = () => {
                 zIndex: index,
               }}
             >
-              <div className="relative overflow-hidden rounded-3xl shadow-deep bg-kaleo-cream h-full">
+              <div className="relative overflow-hidden rounded-3xl shadow-deep bg-white h-full">
                 {/* Image */}
                 <div className="absolute inset-0 overflow-hidden">
                   <img
@@ -123,17 +123,17 @@ const CardStack = () => {
 
                 {/* Card Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <h3 className="font-display text-2xl md:text-3xl text-kaleo-cream mb-2">
+                  <h3 className="font-display text-2xl md:text-3xl text-white mb-2">
                     {card.title}
                   </h3>
-                  <p className="font-body text-sm text-kaleo-cream/70">
+                  <p className="font-body text-sm text-white/70">
                     {card.description}
                   </p>
                 </div>
 
                 {/* Card Number */}
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-kaleo-cream/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="font-body text-xs text-kaleo-cream">
+                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="font-body text-xs text-white">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>

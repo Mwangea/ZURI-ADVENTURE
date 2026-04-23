@@ -183,8 +183,8 @@ export default function AdminDashboardPage() {
       {error ? <p className="font-body text-sm text-red-600">{error}</p> : null}
 
       <section className="grid grid-cols-1 gap-[14px] xl:grid-cols-[1.2fr_1fr_1fr_1fr]">
-        <article className="rounded-[14px] bg-kaleo-earth p-5 text-kaleo-cream">
-          <p className="text-[12px] font-medium tracking-[.2px] text-kaleo-cream/70">Total tours</p>
+        <article className="rounded-[14px] bg-kaleo-earth p-5 text-white">
+          <p className="text-[12px] font-medium tracking-[.2px] text-white/70">Total tours</p>
           <p className="mt-2 font-display text-[34px] leading-none">{loading ? '...' : totalTours}</p>
         </article>
         <article className="rounded-[14px] border border-kaleo-earth/10 bg-white p-5">

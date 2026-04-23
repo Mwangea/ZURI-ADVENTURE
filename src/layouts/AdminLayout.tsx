@@ -50,7 +50,7 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   const base =
     'flex items-center rounded-[9px] px-3 py-[9px] text-[13.5px] transition-colors';
   const active = 'bg-kaleo-terracotta text-white';
-  const inactive = 'text-kaleo-cream/70 hover:bg-white/10 hover:text-kaleo-cream/95';
+  const inactive = 'text-white/70 hover:bg-white/10 hover:text-white/95';
 
   return (
     <>
@@ -110,7 +110,7 @@ function Sidebar({
 
   return (
     <aside
-      className={`flex h-full flex-col bg-kaleo-earth px-[14px] py-[22px] text-kaleo-cream ${
+      className={`flex h-full flex-col bg-kaleo-earth px-[14px] py-[22px] text-white ${
         collapsed ? 'w-[90px]' : 'w-[270px]'
       }`}
     >
@@ -128,7 +128,7 @@ function Sidebar({
           title="Toggle sidebar"
           aria-label="Toggle sidebar"
           onClick={onToggle}
-          className="ml-auto rounded-md p-1 text-kaleo-cream/60 hover:text-kaleo-cream"
+          className="ml-auto rounded-md p-1 text-white/60 hover:text-white"
         >
           <ChevronLeft size={14} className={collapsed ? 'rotate-180' : ''} />
         </button>
@@ -149,10 +149,10 @@ function Sidebar({
         {!collapsed ? (
           <>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[12.5px] font-semibold text-kaleo-cream/90">Zuri Admin</p>
-              <p className="truncate text-[11px] text-kaleo-cream/55">{adminEmail}</p>
+              <p className="truncate text-[12.5px] font-semibold text-white/90">Zuri Admin</p>
+              <p className="truncate text-[11px] text-white/55">{adminEmail}</p>
             </div>
-            <MoreVertical size={14} className="text-kaleo-cream/55" />
+            <MoreVertical size={14} className="text-white/55" />
           </>
         ) : null}
       </button>
@@ -243,7 +243,7 @@ function AdminLayoutInner() {
   return (
     <div className="h-screen w-full overflow-hidden bg-kaleo-earth">
       <div className="flex h-full w-full overflow-hidden bg-kaleo-earth">
-          <div className="hidden border-r border-kaleo-cream/10 md:block">
+          <div className="hidden border-r border-white/10 md:block">
             <Sidebar
               collapsed={collapsed}
               onToggle={() => setCollapsed((v) => !v)}
@@ -270,7 +270,7 @@ function AdminLayoutInner() {
           ) : null}
 
           <div className="m-0 flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-none bg-[#f4f5f7] md:m-2 md:rounded-[14px]">
-            <header className="border-b border-kaleo-earth/10 bg-kaleo-cream px-4 py-3 sm:px-7 sm:pt-[18px]">
+            <header className="border-b border-kaleo-earth/10 bg-white px-4 py-3 sm:px-7 sm:pt-[18px]">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <button

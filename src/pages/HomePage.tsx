@@ -1,8 +1,9 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import useLenis from '@/hooks/useLenis';
 import { Seo } from '@/components/Seo';
+import { SiteHeader } from '@/components/SiteHeader';
 import { heroConfig, siteConfig } from '@/config';
 import Hero from '@/sections/Hero';
 import NarrativeText from '@/sections/NarrativeText';
@@ -17,6 +18,11 @@ import { apiRequest, API_BASE } from '@/lib/api';
 
 const BelowFoldSections = lazy(() => import('./home/BelowFoldSections'));
 const PROMO_DISMISS_KEY = 'zuri.public.promo.dismissed';
+
+/** Home only: hide the bar near the top; after this offset, show while scrolling down, hide while scrolling up. */
+const HOME_HEADER_REVEAL_AFTER_PX = 80;
+/** Ignore smaller deltas so Lenis does not flicker the bar. */
+const HOME_HEADER_SCROLL_DELTA = 2;
 
 type HomeContentResponse = {
   hero: {
@@ -67,7 +73,29 @@ function belowFoldFallback() {
 }
 
 export default function HomePage() {
-  useLenis();
+  const [headerRevealOpen, setHeaderRevealOpen] = useState(false);
+  const lastScrollYRef = useRef(0);
+
+  useLenis({
+    onLenisScroll: (lenis) => {
+      const y = lenis.scroll;
+      const prev = lastScrollYRef.current;
+      const delta = y - prev;
+      lastScrollYRef.current = y;
+
+      if (y <= HOME_HEADER_REVEAL_AFTER_PX) {
+        setHeaderRevealOpen(false);
+        return;
+      }
+
+      if (delta > HOME_HEADER_SCROLL_DELTA) {
+        setHeaderRevealOpen(true);
+      } else if (delta < -HOME_HEADER_SCROLL_DELTA) {
+        setHeaderRevealOpen(false);
+      }
+    },
+  });
+
   const [content, setContent] = useState<HomeContentResponse | null>(null);
   const [dismissedPromoId, setDismissedPromoId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -173,13 +201,14 @@ export default function HomePage() {
       />
       <a
         href="#main-home"
-        className="pointer-events-none fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-kaleo-earth px-4 py-2 font-body text-sm text-kaleo-cream opacity-0 ring-2 ring-kaleo-terracotta transition-all focus:pointer-events-auto focus:translate-y-0 focus:opacity-100 focus:outline-none"
+        className="pointer-events-none fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-kaleo-terracotta px-4 py-2 font-body text-sm text-white opacity-0 ring-2 ring-kaleo-terracotta transition-all focus:pointer-events-auto focus:translate-y-0 focus:opacity-100 focus:outline-none"
       >
         Skip to content
       </a>
+      <SiteHeader position="fixed" revealOpen={headerRevealOpen} />
       {showPromoModal ? (
-        <div className="fixed inset-0 z-[120] grid place-items-center bg-black/55 p-4">
-          <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-kaleo-cream shadow-2xl">
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-kaleo-earth/55 p-4">
+          <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
             {promo?.image_url ? (
               <img
                 src={toAbsoluteMediaUrl(promo.image_url)}
@@ -195,7 +224,7 @@ export default function HomePage() {
                 {promo?.cta_link ? (
                   <a
                     href={promo.cta_link}
-                    className="rounded-full bg-kaleo-terracotta px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white"
+                    className="rounded-full bg-kaleo-terracotta px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-kaleo-terracotta/90"
                   >
                     {promo.cta_label || 'View offer'}
                   </a>
@@ -209,7 +238,7 @@ export default function HomePage() {
                       window.localStorage.setItem(PROMO_DISMISS_KEY, promoId);
                     }
                   }}
-                  className="rounded-full border border-kaleo-earth/25 px-4 py-2 text-xs uppercase tracking-wider text-kaleo-earth"
+                  className="rounded-full border border-kaleo-terracotta/25 px-4 py-2 text-xs uppercase tracking-wider text-kaleo-terracotta hover:border-kaleo-terracotta/40 hover:bg-kaleo-terracotta/5"
                 >
                   Close
                 </button>

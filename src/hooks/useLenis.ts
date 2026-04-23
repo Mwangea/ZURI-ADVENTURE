@@ -5,8 +5,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const useLenis = () => {
+export type UseLenisOptions = {
+  /** Runs on every Lenis scroll tick (after ScrollTrigger.update). Use for scroll-direction UI. */
+  onLenisScroll?: (lenis: Lenis) => void;
+};
+
+export const useLenis = (options?: UseLenisOptions) => {
   const lenisRef = useRef<Lenis | null>(null);
+  const onLenisScrollRef = useRef(options?.onLenisScroll);
+  onLenisScrollRef.current = options?.onLenisScroll;
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -21,8 +28,12 @@ export const useLenis = () => {
 
     lenisRef.current = lenis;
 
-    // Connect Lenis to GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
+    const handleLenisScroll = () => {
+      ScrollTrigger.update();
+      onLenisScrollRef.current?.(lenis);
+    };
+
+    lenis.on('scroll', handleLenisScroll);
 
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);

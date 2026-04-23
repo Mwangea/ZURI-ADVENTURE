@@ -7,7 +7,7 @@ export function InteriorLayout({ children }: { children: ReactNode }) {
     <div className="relative min-h-screen bg-kaleo-sand">
       <a
         href="#main-content"
-        className="pointer-events-none fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-kaleo-earth px-4 py-2 font-body text-sm text-kaleo-cream opacity-0 ring-2 ring-kaleo-terracotta transition-all focus:pointer-events-auto focus:translate-y-0 focus:opacity-100 focus:outline-none"
+        className="pointer-events-none fixed left-4 top-4 z-[100] -translate-y-[200%] rounded-md bg-kaleo-earth px-4 py-2 font-body text-sm text-white opacity-0 ring-2 ring-kaleo-terracotta transition-all focus:pointer-events-auto focus:translate-y-0 focus:opacity-100 focus:outline-none"
       >
         Skip to content
       </a>
